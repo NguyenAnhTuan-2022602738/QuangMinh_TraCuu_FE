@@ -1,0 +1,342 @@
+.customer-portal {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #fafafa;
+}
+
+/* Portal Header */
+.portal-header {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 1.5rem 0;
+    box-shadow: var(--shadow);
+}
+
+.portal-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.portal-brand .logo-icon {
+    width: 60px;
+    height: 60px;
+    background: white;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: var(--primary);
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.brand-info h1 {
+    font-size: 1.75rem;
+    margin: 0;
+    color: white;
+}
+
+.price-badge {
+    display: inline-block;
+    background: white;
+    padding: 0.375rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+    color: var(--primary);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Portal Content */
+.portal-content {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+.portal-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+}
+
+.portal-controls {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+    background: white;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    padding-right: 3rem;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+}
+
+.category-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 250px;
+}
+
+.category-filter label {
+    font-weight: 600;
+    white-space: nowrap;
+    color: #1f2937;
+}
+
+.category-select {
+    flex: 1;
+    min-width: 200px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+}
+
+.category-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+.results-info {
+    margin-bottom: 1.5rem;
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+.results-info strong {
+    color: #1f2937;
+    font-weight: 700;
+}
+
+/* Product Grid */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.product-card {
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    background: white;
+}
+
+.product-card:hover {
+    border-left-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+}
+
+.product-code {
+    font-size: 0.875rem;
+    color: var(--primary);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    background: rgba(198, 40, 40, 0.08);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.product-category {
+    font-size: 0.75rem;
+    background: #f3f4f6;
+    color: #6b7280;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+}
+
+.product-name {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    min-height: 2.8rem;
+    height: 2.8rem; /* Cố định chiều cao 2 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Hiện dấu ... khi text quá dài */
+    position: relative;
+    cursor: help;
+    transition: color 0.2s ease;
+    word-break: break-word; /* Đảm bảo từ dài sẽ xuống dòng */
+}
+
+.product-name:hover {
+    color: var(--primary);
+}
+
+.product-details {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 0.875rem;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-align: right;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.no-results p {
+    color: #6b7280;
+}
+
+/* Portal Footer */
+.portal-footer {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 1.5rem 0;
+    text-align: center;
+    margin-top: auto;
+}
+
+.portal-footer p {
+    margin: 0.25rem 0;
+    font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .portal-brand {
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .brand-info h1 {
+        font-size: 1.25rem;
+    }
+    
+    .portal-brand .logo-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .portal-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box,
+    .category-filter {
+        width: 100%;
+    }
+    
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-header {
+        flex-direction: column;
+    }
+    
+    .product-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .product-price {
+        text-align: left;
+    }
+    
+    .product-name {
+        font-size: 0.95rem;
+        min-height: 2.5rem;
+        height: auto; /* Cho phép linh hoạt hơn trên mobile */
+        max-height: 4.2rem; /* Cho phép hiển thị 3 dòng trên mobile */
+        -webkit-line-clamp: 3; /* Cho phép 3 dòng trên mobile */
+        line-clamp: 3;
+    }
+}

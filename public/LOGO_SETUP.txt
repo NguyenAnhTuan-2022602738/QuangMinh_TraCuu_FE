@@ -1,0 +1,27 @@
+LOGO SETUP INSTRUCTIONS
+========================
+
+Để hiển thị logo công ty, vui lòng:
+
+1. Copy file logo (PNG format, recommended size: 150x150px or higher)
+2. Đặt tên file là: logo.png
+3. Save vào thư mục này (client/public/)
+
+Hiện tại Header đang sử dụng fallback text "QM" cho đến khi logo.png được thêm vào.
+
+File path expected: /logo.png (được serve từ public folder)
+
+---
+
+LOGO SETUP INSTRUCTIONS (English)
+===================================
+
+To display the company logo:
+
+1. Copy your logo file (PNG format, recommended size: 150x150px or higher)
+2. Rename it to: logo.png
+3. Save it in this folder (client/public/)
+
+Currently the Header shows fallback text "QM" until logo.png is added.
+
+Expected file path: /logo.png (served from public folder)

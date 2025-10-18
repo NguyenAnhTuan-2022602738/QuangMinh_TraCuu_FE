@@ -1,0 +1,365 @@
+.product-catalog {
+    padding: 2rem 0;
+    min-height: 70vh;
+}
+
+.catalog-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.catalog-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.catalog-subtitle {
+    font-size: 1.1rem;
+    color: var(--gray);
+}
+
+.price-type-badge {
+    display: inline-block;
+    background: var(--primary);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.catalog-controls {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding-right: 3rem;
+}
+
+.search-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+}
+
+.category-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 250px;
+}
+
+.category-filter label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.category-select {
+    flex: 1;
+    min-width: 200px;
+}
+
+.results-pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.results-info {
+    color: var(--gray);
+    font-size: 1rem;
+}
+
+.pagination-settings {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pagination-settings label {
+    font-size: 0.9rem;
+    color: var(--gray);
+    white-space: nowrap;
+}
+
+.products-per-page-select {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 0.25rem;
+    background-color: white;
+    color: var(--dark);
+    font-size: 0.9rem;
+}
+
+.no-results {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+}
+
+.no-results p {
+    color: var(--gray);
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.product-card {
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+}
+
+.product-card:hover {
+    border-left-color: var(--primary);
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+}
+
+.product-code {
+    font-size: 0.875rem;
+    color: var(--primary);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+.product-category {
+    font-size: 0.75rem;
+    background: var(--light-gray);
+    color: var(--gray);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+}
+
+.product-name {
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    color: var(--dark);
+    min-height: 2.8rem;
+    height: 2.8rem; /* Cố định chiều cao 2 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Hiện dấu ... khi text quá dài */
+    position: relative;
+    cursor: help;
+    transition: color 0.2s ease;
+    word-break: break-word; /* Đảm bảo từ dài sẽ xuống dòng */
+}
+
+.product-name:hover {
+    color: var(--primary);
+}
+
+.product-details {
+    border-top: 1px solid var(--light-gray);
+    padding-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-label {
+    font-size: 0.75rem;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 0.875rem;
+    color: var(--dark);
+    font-weight: 600;
+}
+
+.product-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--secondary);
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .catalog-header h1 {
+        font-size: 2rem;
+    }
+    
+    .catalog-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box,
+    .category-filter {
+        width: 100%;
+    }
+    
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pagination-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.1rem;
+    border: none;
+    background-color: white;
+    color: var(--dark);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--light-gray);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--gray);
+}
+
+.current-page, .total-pages {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.current-page {
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .results-pagination-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .pagination-settings {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .products-per-page-select {
+        min-width: 80px;
+    }
+    
+    .results-info {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-header {
+        flex-direction: column;
+    }
+    
+    .product-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .product-price {
+        text-align: left;
+    }
+    
+    .product-name {
+        font-size: 0.95rem;
+        min-height: 2.5rem;
+        height: auto; /* Cho phép linh hoạt hơn trên mobile */
+        max-height: 4.2rem; /* Cho phép hiển thị 3 dòng trên mobile */
+        -webkit-line-clamp: 3; /* Cho phép 3 dòng trên mobile */
+        line-clamp: 3;
+    }
+    
+    .pagination {
+        padding: 0.25rem;
+        gap: 0.25rem;
+    }
+    
+    .pagination-btn {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.9rem;
+    }
+    
+    .pagination-info {
+        padding: 0 0.5rem;
+        font-size: 0.8rem;
+    }
+}

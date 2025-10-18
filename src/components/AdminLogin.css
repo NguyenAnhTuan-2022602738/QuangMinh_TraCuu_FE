@@ -1,0 +1,143 @@
+.admin-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    padding: 2rem;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 450px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+
+.login-header {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 3rem 2rem 2rem;
+    text-align: center;
+}
+
+.admin-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.login-header h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.login-header p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+.login-form {
+    padding: 2.5rem 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 0.95rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+.error-message {
+    background: #fee;
+    color: #c62828;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid #fcc;
+}
+
+.login-form .btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.login-form .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.login-footer {
+    background: #f9f9f9;
+    padding: 1.5rem 2rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+}
+
+.login-footer p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+@media (max-width: 576px) {
+    .admin-login-page {
+        padding: 1rem;
+    }
+    
+    .login-header {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .login-form {
+        padding: 2rem 1.5rem;
+    }
+    
+    .admin-icon {
+        font-size: 3rem;
+    }
+}

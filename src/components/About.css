@@ -1,0 +1,195 @@
+.about {
+    padding: 2rem 0;
+}
+
+.about-hero {
+    text-align: center;
+    padding: 3rem 0;
+    background: var(--gradient-primary);
+    border-radius: 0.75rem;
+    margin-bottom: 3rem;
+}
+
+.about-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: white;
+    font-weight: 700;
+}
+
+.lead {
+    font-size: 1.25rem;
+    color: var(--gray);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.company-info {
+    margin-bottom: 3rem;
+}
+
+.info-card {
+    padding: 2rem;
+}
+
+.info-card h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    color: var(--dark);
+}
+
+.info-card p {
+    margin-bottom: 1rem;
+    line-height: 1.8;
+}
+
+.vision-values {
+    margin-bottom: 3rem;
+}
+
+.vision-card {
+    padding: 2rem;
+    margin-bottom: 3rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--primary);
+    border-radius: 0.5rem;
+}
+
+.vision-card h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: var(--dark);
+}
+
+.values-title {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--dark);
+}
+
+.value-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.value-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.value-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--dark);
+}
+
+.value-card p {
+    color: var(--gray);
+    line-height: 1.6;
+}
+
+.services-section {
+    margin-bottom: 3rem;
+}
+
+.services-section > h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--dark);
+}
+
+.service-card {
+    padding: 2rem;
+}
+
+.service-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--dark);
+}
+
+.service-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.service-card li {
+    padding: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    color: var(--gray);
+}
+
+.service-card li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.contact-section {
+    margin-bottom: 2rem;
+}
+
+.contact-card {
+    padding: 3rem;
+    background: white;
+    text-align: center;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.contact-card h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--dark);
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.contact-item {
+    text-align: left;
+}
+
+.contact-item strong {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--dark);
+}
+
+.contact-item p {
+    color: var(--gray);
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .about-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
+    
+    .contact-card {
+        padding: 2rem 1rem;
+    }
+    
+    .contact-info {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
