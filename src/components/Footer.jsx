@@ -14,15 +14,15 @@ const Footer = () => {
                     
                     <div className="footer-section">
                         <h4>Liên hệ</h4>
-                        <p>Email: support@productlookup.com</p>
-                        <p>Hotline: 1900-xxxx</p>
-                        <p>Địa chỉ: Hà Nội, Việt Nam</p>
+                        <p>Email: phutunghitech@gmail.com</p>
+                        <p>Hotline: +84 94 292 98 18</p>
+                        <p>Địa chỉ: Đông Ngạc, Đông Thắng, Hanoi, Vietnam </p>
                     </div>
                     
                     <div className="footer-section">
                         <h4>Dịch vụ</h4>
                         <p>Tra cứu sản phẩm</p>
-                        <p>Báo giá theo loại khách hàng</p>
+                        <p>Báo giá tốt</p>
                         <p>Tư vấn chuyên nghiệp</p>
                     </div>
                 </div>
