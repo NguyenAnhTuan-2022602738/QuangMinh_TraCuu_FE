@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import CustomerTypeSelector from './CustomerTypeSelector';
 import './Header.css';
@@ -19,6 +19,17 @@ const Header = ({ showSelector = true, priceType = null }) => {
         setMenuOpen(!menuOpen);
     };
     
+    useEffect(() => {
+        if (menuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [menuOpen]);
+
 
     return (
         <header className="header">

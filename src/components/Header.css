@@ -1,16 +1,17 @@
 .header {
     background: var(--gradient-primary);
     color: white;
-    box-shadow: var(--shadow);
+    box-shadow: var(--shadow-lg);
     position: sticky;
     top: 0;
     z-index: 100;
+    backdrop-filter: saturate(140%) blur(6px);
 }
 
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.25rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -30,6 +31,13 @@
     align-items: center;
     gap: 0.75rem;
     text-decoration: none;
+    padding: 0.35rem 0.6rem;
+    border-radius: 0.75rem;
+    transition: background 0.3s ease;
+}
+
+.header-logo:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .desktop-only {
@@ -37,15 +45,15 @@
 }
 
 .logo-icon {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     background: white;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    padding: 0.3rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
 }
 
 .logo-icon img {
@@ -55,7 +63,7 @@
 }
 
 .logo-text {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
     color: white;
     letter-spacing: 0.3px;
@@ -90,13 +98,14 @@
 
 .header a {
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.92);
     padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
+    border-radius: 0.65rem;
     font-weight: 500;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
+    backdrop-filter: blur(2px);
 }
 
 .header a:hover {
@@ -140,6 +149,10 @@
     width: 100%;
     justify-content: space-between;
     align-items: center;
+    border-radius: 0.85rem;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 0.75rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
 }
 
 .header-top {
@@ -150,6 +163,7 @@
     .header-container {
         flex-direction: column;
         align-items: stretch;
+        padding: 0.6rem 1rem;
     }
     
     .header-top {
@@ -169,14 +183,23 @@
     .mobile-menu-wrapper {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease-out;
+        transition: max-height 0.32s ease, opacity 0.32s ease;
         flex-direction: column;
         align-items: stretch;
+        opacity: 0;
+        padding: 0;
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255,255,255,0.18);
     }
     
     /* Show when open class is added */
     .mobile-menu-wrapper.open {
-        max-height: 500px; /* Adjust as needed */
+        max-height: 520px; /* Adjust as needed */
+        opacity: 1;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+        box-shadow: 0 18px 30px rgba(0,0,0,0.18);
     }
     
     .header nav {
@@ -197,14 +220,16 @@
     .header a {
         width: 100%;
         padding: 0.75rem 1rem;
+        border-radius: 0.65rem;
+        background: rgba(0, 0, 0, 0.08);
     }
     
     .header-actions {
         width: 100%;
         justify-content: center;
         padding: 0.75rem 0;
-        border-top: 1px solid rgba(255,255,255,0.1);
-        margin-top: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.18);
+        margin-top: 0.75rem;
     }
     
     /* Animation for menu toggle */
@@ -218,5 +243,45 @@
     
     .menu-toggle.active .bar:nth-child(3) {
         transform: translateY(-8px) rotate(-45deg);
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        padding: 0.5rem 0.85rem;
+        gap: 0.5rem;
+    }
+    
+    .header-logo {
+        gap: 0.6rem;
+    }
+    
+    .logo-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 0.65rem;
+    }
+    
+    .logo-text {
+        font-size: 1.1rem;
+        line-height: 1.3;
+    }
+    
+    .logo-text-sub {
+        font-size: 0.65rem;
+    }
+    
+    .menu-toggle {
+        padding: 0.35rem;
+    }
+    
+    .bar {
+        width: 22px;
+        margin: 4px auto;
+    }
+    
+    .header a {
+        padding: 0.7rem 0.85rem;
+        font-size: 0.95rem;
     }
 }
