@@ -55,7 +55,7 @@ const Home = () => {
                         <div className="feature-card card">
                             <div className="feature-icon">💰</div>
                             <h3>Giá phù hợp</h3>
-                            <p>Hiển thị giá theo từng loại khách hàng (BBCL, BBPT, BL, BLVIP, Honda247)</p>
+                            <p>Hàng chuẩn - Giá tốt</p>
                         </div>
                         
                         <div className="feature-card card">
