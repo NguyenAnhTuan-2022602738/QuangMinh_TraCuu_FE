@@ -379,6 +379,11 @@
     margin-bottom: 1rem;
 }
 
+.admin-qr-container {
+    margin-top: 1rem;
+    background: transparent;
+}
+
 @media (max-width: 768px) {
     .admin-header-content {
         flex-direction: column;

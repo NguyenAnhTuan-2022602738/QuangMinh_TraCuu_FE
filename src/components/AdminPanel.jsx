@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import './AdminPanel.css';
+import AdminQR from './AdminQR';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -13,6 +14,7 @@ const AdminPanel = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [uploading, setUploading] = useState(false);
+    const [showQR, setShowQR] = useState(false);
     const history = useHistory();
 
     const [formData, setFormData] = useState({
@@ -335,6 +337,13 @@ const AdminPanel = () => {
                                 style={{ display: 'none' }}
                             />
                         </label>
+
+                        <button
+                            onClick={() => setShowQR(true)}
+                            className="btn btn-outline"
+                        >
+                            🛈 Tạo QR
+                        </button>
                     </div>
                 </div>
 
@@ -464,17 +473,28 @@ const AdminPanel = () => {
                     </div>
                 )}
 
-                {loading ? (
+                {/* QR tool or table / states (clear conditional rendering to avoid nested ternary parsing issues) */}
+                {showQR && (
+                    <div className="admin-qr-container">
+                        <AdminQR onBack={() => setShowQR(false)} />
+                    </div>
+                )}
+
+                {!showQR && loading && (
                     <div className="loading-state">
                         <div className="spinner"></div>
                         <p>Đang tải dữ liệu...</p>
                     </div>
-                ) : error ? (
+                )}
+
+                {!showQR && error && (
                     <div className="error-state">
                         <span>⚠️</span>
                         <p>{error}</p>
                     </div>
-                ) : (
+                )}
+
+                {!showQR && !loading && !error && (
                     <div className="products-table-container">
                         <div className="table-header">
                             <h3>Danh sách sản phẩm ({filteredProducts.length})</h3>

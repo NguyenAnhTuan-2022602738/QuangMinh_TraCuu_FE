@@ -106,7 +106,7 @@ const About = () => {
                             </ul>
                         </div>
 
-                        <div className="service-card card">
+                        {/* <div className="service-card card">
                             <h3>💰 Báo giá linh hoạt</h3>
                             <ul>
                                 <li>Giá theo loại khách hàng (BBCL, BBPT)</li>
@@ -114,7 +114,7 @@ const About = () => {
                                 <li>Giá đặc biệt Honda247</li>
                                 <li>Cập nhật giá theo thời gian thực</li>
                             </ul>
-                        </div>
+                        </div> */}
 
                         <div className="service-card card">
                             <h3>📊 Quản lý danh mục</h3>
@@ -145,19 +145,19 @@ const About = () => {
                         <div className="contact-info">
                             <div className="contact-item">
                                 <strong>📧 Email:</strong>
-                                <p>support@productlookup.com</p>
+                                <p>phutunghitech@gmail.com</p>
                             </div>
                             <div className="contact-item">
                                 <strong>☎️ Hotline:</strong>
-                                <p>1900-xxxx</p>
+                                <p>+84 94 292 98 18</p>
                             </div>
                             <div className="contact-item">
                                 <strong>📍 Địa chỉ:</strong>
-                                <p>Hà Nội, Việt Nam</p>
+                                <p>Đông Ngạc, Đông Thắng, Hanoi, Vietnam</p>
                             </div>
                             <div className="contact-item">
                                 <strong>🕐 Giờ làm việc:</strong>
-                                <p>Thứ 2 - Thứ 6: 8:00 - 17:30</p>
+                                <p>Thứ 2 - Thứ 7: 8:00 - 17:30</p>
                             </div>
                         </div>
                     </div>
