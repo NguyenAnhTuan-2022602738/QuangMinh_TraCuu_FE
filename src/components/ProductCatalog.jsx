@@ -201,12 +201,11 @@ const ProductCatalog = () => {
                     {parentCategories.map((cat, index) => (
                         <button
                             key={index}
-                            className={`sidebar-item ${selectedParentCategory === cat.name ? 'active' : ''}`}
-                            onClick={() => handleParentCategorySelect(cat.name)}
+                            className={`sidebar-item ${selectedParentCategory === cat ? 'active' : ''}`}
+                            onClick={() => handleParentCategorySelect(cat)}
                         >
                             <span className="sidebar-icon">📁</span>
-                            <span className="sidebar-label">{cat.name}</span>
-                            <span className="sidebar-count">{cat.count}</span>
+                            <span className="sidebar-label">{cat}</span>
                         </button>
                     ))}
                 </nav>
