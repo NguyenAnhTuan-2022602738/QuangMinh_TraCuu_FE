@@ -55,11 +55,22 @@ const CustomerLogin = ({ priceType }) => {
 
                 <form onSubmit={handleSubmit} className="login-form">
                     <label>Số điện thoại</label>
-                    <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="0123456789" />
+                    <input 
+                        value={username} 
+                        onChange={(e) => setUsername(e.target.value)} 
+                        placeholder="0123456789"
+                        autoComplete="username"
+                    />
 
                     <label>Mật khẩu</label>
                     <div className="field-row">
-                        <input type={showPass ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Mật khẩu" />
+                        <input 
+                            type={showPass ? 'text' : 'password'} 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            placeholder="Mật khẩu"
+                            autoComplete="current-password"
+                        />
                         <button type="button" className="show-pass" onClick={() => setShowPass(s => !s)}>{showPass ? 'Ẩn' : 'Hiện'}</button>
                     </div>
 
