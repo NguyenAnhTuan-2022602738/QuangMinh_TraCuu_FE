@@ -11,11 +11,6 @@ const CategoryManagement = () => {
     const [previewData, setPreviewData] = useState(null);
     const [showPreview, setShowPreview] = useState(false);
 
-    // Fetch all parent categories with their product counts (lightweight)
-    useEffect(() => {
-        fetchCategoriesMetadata();
-    }, []);
-
     const fetchCategoriesMetadata = async () => {
         try {
             setInitialLoading(true);
@@ -88,6 +83,12 @@ const CategoryManagement = () => {
             alert('Lỗi khi tải danh mục: ' + error.message);
         }
     };
+
+    // Fetch all parent categories with their product counts (lightweight)
+    useEffect(() => {
+        fetchCategoriesMetadata();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Load details for a specific category (lazy load)
     const loadCategoryDetails = useCallback(async (categoryName) => {

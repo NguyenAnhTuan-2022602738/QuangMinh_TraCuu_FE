@@ -14,7 +14,7 @@ const AdminUserManagement = ({ onBack }) => {
     // UI states
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(true);
-    const [result, setResult] = useState(null);
+    // const [result, setResult] = useState(null); // Not used - removed to fix ESLint warning
     const [users, setUsers] = useState([]);
     const [editing, setEditing] = useState(null);
     const [error, setError] = useState('');
@@ -64,7 +64,7 @@ const AdminUserManagement = ({ onBack }) => {
     };
 
     const clearForm = () => {
-        setName(''); setPhone(''); setSelected([]); setEditing(null); setResult(null);
+        setName(''); setPhone(''); setSelected([]); setEditing(null);
     };
 
     const handleCreateOrUpdate = async () => {
@@ -83,7 +83,6 @@ const AdminUserManagement = ({ onBack }) => {
         }
 
         setLoading(true);
-        setResult(null);
         
         try {
             const adminToken = localStorage.getItem('adminToken');
@@ -119,7 +118,6 @@ const AdminUserManagement = ({ onBack }) => {
             const data = await resp.json();
             
             if (resp.ok) {
-                setResult({ success: true, data });
                 console.log('✅ Operation successful:', data);
                 
                 // Show success message with password if creating new user
@@ -132,13 +130,11 @@ const AdminUserManagement = ({ onBack }) => {
                 clearForm();
                 fetchUsers();
             } else {
-                setResult({ success: false, data });
                 alert(`❌ Lỗi: ${data.message || 'Không xác định'}`);
                 console.error('❌ Operation failed:', data);
             }
         } catch (err) {
             const errorMsg = err.message || 'Lỗi kết nối';
-            setResult({ success: false, data: { message: errorMsg } });
             alert('❌ ' + errorMsg);
             console.error('❌ Request error:', err);
         } finally {
@@ -151,7 +147,6 @@ const AdminUserManagement = ({ onBack }) => {
         setName(u.name || '');
         setPhone(u.phone || '');
         setSelected(u.allowedPriceTypes || []);
-        setResult(null);
     };
 
     const handleDelete = async (u) => {

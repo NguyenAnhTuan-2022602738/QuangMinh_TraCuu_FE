@@ -14,15 +14,6 @@ const ProductCatalogByCategory = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    useEffect(() => {
-        fetchSubcategories();
-        fetchProducts();
-    }, [parentCategory]);
-
-    useEffect(() => {
-        fetchProducts();
-    }, [selectedSubcategory]);
-
     const fetchSubcategories = async () => {
         try {
             const response = await fetch(
@@ -68,6 +59,17 @@ const ProductCatalogByCategory = () => {
             product.subcategory?.toLowerCase().includes(searchLower)
         );
     });
+
+    useEffect(() => {
+        fetchSubcategories();
+        fetchProducts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [parentCategory]);
+
+    useEffect(() => {
+        fetchProducts();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedSubcategory]);
 
     const goBack = () => {
         history.push('/categories');
