@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, useLocation } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import './AdminPanel.css';
 import AdminQR from './AdminQR';
+import AdminUserManagement from './AdminUserManagement';
+import CategoryManagement from './CategoryManagement';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -14,14 +16,46 @@ const AdminPanel = () => {
     const [editingProduct, setEditingProduct] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [uploading, setUploading] = useState(false);
-    const [showQR, setShowQR] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const history = useHistory();
+    const location = useLocation();
+
+    // Get active view from URL path
+    const getActiveView = () => {
+        const path = location.pathname;
+        console.log('📍 Current path:', path);
+        
+        if (path.includes('/admin/products')) {
+            console.log('✅ Active view: products');
+            return 'products';
+        }
+        if (path.includes('/admin/users')) {
+            console.log('✅ Active view: users');
+            return 'users';
+        }
+        if (path.includes('/admin/qr')) {
+            console.log('✅ Active view: qr');
+            return 'qr';
+        }
+        if (path.includes('/admin/categories')) {
+            console.log('✅ Active view: categories');
+            return 'categories';
+        }
+        
+        console.log('✅ Active view: dashboard');
+        return 'dashboard';
+    };
+
+    const activeView = getActiveView();
 
     const [formData, setFormData] = useState({
         code: '',
         name: '',
-        category: '',
+        parentCategory: '',
+        subcategory: '',
+        category: '', // Keep for backward compatibility
         unit: '',
+        image: '',
         BBCL: '',
         BBPT: '',
         BL: '',
@@ -95,7 +129,7 @@ const AdminPanel = () => {
                 setShowForm(false);
                 setEditingProduct(null);
                 setFormData({
-                    code: '', name: '', category: '', unit: '',
+                    code: '', name: '', parentCategory: '', subcategory: '', category: '', unit: '', image: '',
                     BBCL: '', BBPT: '', BL: '', BLVIP: '', HONDA247: ''
                 });
                 fetchProducts();
@@ -113,8 +147,11 @@ const AdminPanel = () => {
         setFormData({
             code: product.code || '',
             name: product.name || '',
+            parentCategory: product.parentCategory || product.category || '',
+            subcategory: product.subcategory || '',
             category: product.category || '',
             unit: product.unit || '',
+            image: product.image || '',
             // Lấy giá từ product.prices nếu có, ngược lại lấy từ product (cấu trúc cũ)
             BBCL: (product.prices?.BBCL !== undefined) ? product.prices.BBCL : (product.BBCL || ''),
             BBPT: (product.prices?.BBPT !== undefined) ? product.prices.BBPT : (product.BBPT || ''),
@@ -130,21 +167,32 @@ const AdminPanel = () => {
 
         try {
             const token = localStorage.getItem('adminToken');
+            console.log('🗑️ Deleting product:', id);
+            console.log('🔑 Token:', token ? 'Available' : 'Missing');
+            
             const response = await fetch(`${API_URL}/products/${id}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
+            console.log('📡 Delete response status:', response.status);
+            
             if (response.ok) {
+                const data = await response.json();
+                console.log('✅ Delete success:', data);
                 alert('Xóa thành công!');
                 fetchProducts();
             } else {
-                alert('Có lỗi xảy ra');
+                const errorData = await response.json().catch(() => ({}));
+                console.error('❌ Delete failed:', response.status, errorData);
+                alert(`Có lỗi xảy ra: ${errorData.message || response.statusText}`);
             }
         } catch (err) {
-            alert('Lỗi kết nối server');
+            console.error('💥 Delete error:', err);
+            alert(`Lỗi kết nối server: ${err.message}`);
         }
     };
 
@@ -179,11 +227,17 @@ const AdminPanel = () => {
                     throw new Error('Thiếu cột Tên sản phẩm/name trong file Excel');
                 }
 
+                const parentCategory = row['Danh mục cha'] || row['parentCategory'] || row['Danh mục'] || row['category'] || 'Chưa phân loại';
+                const subcategory = row['Danh mục con'] || row['subcategory'] || row['Danh mục'] || row['category'] || 'Chưa phân loại';
+
                 return {
                     code: row['Mã sản phẩm'] || row['code'] || '',
                     name: row['Tên sản phẩm'] || row['name'] || '',
-                    category: row['Danh mục'] || row['category'] || 'Chưa phân loại',
+                    parentCategory: parentCategory,
+                    subcategory: subcategory,
+                    category: row['Danh mục'] || row['category'] || parentCategory, // Backward compatibility
                     unit: row['Đơn vị'] || row['unit'] || 'Cái',
+                    image: row['URL Ảnh'] || row['image'] || null,
                     BBCL: parseFloat(row['BBCL']) || 0,
                     BBPT: parseFloat(row['BBPT']) || 0,
                     BL: parseFloat(row['BL']) || 0,
@@ -227,9 +281,11 @@ const AdminPanel = () => {
         const template = [
             {
                 'Mã sản phẩm': 'SP001',
-                'Tên sản phẩm': 'Ví dụ sản phẩm',
-                'Danh mục': 'Phụ tùng',
+                'Tên sản phẩm': 'Bộ lọc dầu Honda City',
+                'Danh mục cha': 'PHỤ TÙNG ĐỘNG CƠ',
+                'Danh mục con': 'Bộ lọc dầu',
                 'Đơn vị': 'Cái',
+                'URL Ảnh': 'https://example.com/image1.jpg',
                 'BBCL': 100000,
                 'BBPT': 95000,
                 'BL': 110000,
@@ -238,9 +294,11 @@ const AdminPanel = () => {
             },
             {
                 'Mã sản phẩm': 'SP002',
-                'Tên sản phẩm': 'Sản phẩm mẫu 2',
-                'Danh mục': 'Linh kiện',
+                'Tên sản phẩm': 'Má phanh trước Honda Civic',
+                'Danh mục cha': 'PHỤ TÙNG PHANH',
+                'Danh mục con': 'Má phanh',
                 'Đơn vị': 'Bộ',
+                'URL Ảnh': 'https://example.com/image2.jpg',
                 'BBCL': 50000,
                 'BBPT': 48000,
                 'BL': 55000,
@@ -257,9 +315,12 @@ const AdminPanel = () => {
             ['HƯỚNG DẪN IMPORT SẢN PHẨM:'],
             ['1. Không thay đổi tên các cột'],
             ['2. Mã sản phẩm là bắt buộc và phải duy nhất'],
-            ['3. Tên sản phẩm là bắt buộc'],
-            ['4. Giá có thể để trống hoặc 0 nếu không có'],
-            ['5. Xóa các dòng mẫu trước khi nhập dữ liệu thật'],
+            ['3. Tên sản phẩm, Danh mục cha, Danh mục con là bắt buộc'],
+            ['4. Danh mục cha: nhóm lớn (VD: PHỤ TÙNG ĐỘNG CƠ, PHỤ TÙNG PHANH)'],
+            ['5. Danh mục con: nhóm nhỏ trong danh mục cha (VD: Bộ lọc dầu, Má phanh)'],
+            ['6. URL Ảnh: link ảnh sản phẩm (có thể để trống)'],
+            ['7. Giá có thể để trống hoặc 0 nếu không có'],
+            ['8. Xóa các dòng mẫu trước khi nhập dữ liệu thật'],
         ], { origin: 'A4' });
 
         const wb = XLSX.utils.book_new();
@@ -274,78 +335,200 @@ const AdminPanel = () => {
     );
 
     return (
-        <div className="admin-panel">
-            <div className="admin-header">
-                <div className="container">
-                    <div className="admin-header-content">
-                        <div>
-                            <h1>🛠️ Quản trị sản phẩm</h1>
-                            <p>Phụ tùng xe máy Quang Minh</p>
-                        </div>
-                        <div className="admin-actions">
-                            <Link to="/" className="btn btn-outline">
-                                Về trang chủ
-                            </Link>
-                            <button onClick={handleLogout} className="btn btn-secondary">
-                                Đăng xuất
-                            </button>
+        <div className="admin-panel-modern">
+            {/* Sidebar */}
+            <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
+                <div className="sidebar-header">
+                    <div className="sidebar-brand">
+                        <div className="brand-icon">QM</div>
+                        <div className="brand-text">
+                            <h3>Quang Minh</h3>
+                            <span>Admin Panel</span>
                         </div>
                     </div>
+                    <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                        {sidebarOpen ? '◀' : '▶'}
+                    </button>
                 </div>
-            </div>
 
-            <div className="container admin-content">
-                <div className="admin-toolbar">
-                    <div className="search-box-admin">
-                        <input
-                            type="text"
-                            placeholder="🔍 Tìm kiếm sản phẩm..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
+                <nav className="sidebar-nav">
+                    <button 
+                        className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
+                        onClick={() => history.push('/admin')}
+                    >
+                        <span className="nav-icon">📊</span>
+                        <span className="nav-label">Tổng quan</span>
+                    </button>
                     
-                    <div className="toolbar-buttons">
-                        <button 
-                            onClick={() => {
-                                setShowForm(true);
-                                setEditingProduct(null);
-                                setFormData({
-                                    code: '', name: '', category: '', unit: '',
-                                    BBCL: '', BBPT: '', BL: '', BLVIP: '', HONDA247: ''
-                                });
-                            }}
-                            className="btn btn-primary"
-                        >
-                            ➕ Thêm sản phẩm
-                        </button>
-                        
-                        <button 
-                            onClick={downloadExcelTemplate}
-                            className="btn btn-outline"
-                        >
-                            📥 Tải file mẫu
-                        </button>
-                        
-                        <label className="btn btn-secondary file-upload-btn">
-                            {uploading ? '⏳ Đang import...' : '📤 Import Excel'}
-                            <input
-                                type="file"
-                                accept=".xlsx,.xls"
-                                onChange={handleExcelUpload}
-                                disabled={uploading}
-                                style={{ display: 'none' }}
-                            />
-                        </label>
+                    <button 
+                        className={`nav-item ${activeView === 'products' ? 'active' : ''}`}
+                        onClick={() => history.push('/admin/products')}
+                    >
+                        <span className="nav-icon">📦</span>
+                        <span className="nav-label">Sản phẩm</span>
+                    </button>
 
-                        <button
-                            onClick={() => setShowQR(true)}
-                            className="btn btn-outline"
-                        >
-                            🛈 Tạo QR
-                        </button>
+                    <button 
+                        className={`nav-item ${activeView === 'users' ? 'active' : ''}`}
+                        onClick={() => history.push('/admin/users')}
+                    >
+                        <span className="nav-icon">👥</span>
+                        <span className="nav-label">Tài khoản</span>
+                    </button>
+
+                    <button 
+                        className={`nav-item ${activeView === 'categories' ? 'active' : ''}`}
+                        onClick={() => history.push('/admin/categories')}
+                    >
+                        <span className="nav-icon">🗂️</span>
+                        <span className="nav-label">Danh mục</span>
+                    </button>
+
+                    <button 
+                        className={`nav-item ${activeView === 'qr' ? 'active' : ''}`}
+                        onClick={() => history.push('/admin/qr')}
+                    >
+                        <span className="nav-icon">🔗</span>
+                        <span className="nav-label">Tạo QR Code</span>
+                    </button>
+                </nav>
+
+                <div className="sidebar-footer">
+                    <Link to="/" className="footer-link">
+                        <span className="nav-icon">🏠</span>
+                        <span className="nav-label">Trang chủ</span>
+                    </Link>
+                    <button onClick={handleLogout} className="logout-btn">
+                        <span className="nav-icon">🚪</span>
+                        <span className="nav-label">Đăng xuất</span>
+                    </button>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="admin-main-content">
+                {/* Top Bar */}
+                <div className="admin-topbar">
+                    <div className="topbar-left">
+                        <h1 className="page-title">
+                            {activeView === 'dashboard' && '📊 Tổng quan'}
+                            {activeView === 'products' && '📦 Quản lý sản phẩm'}
+                            {activeView === 'users' && '👥 Quản lý tài khoản'}
+                            {activeView === 'qr' && '🔗 Tạo QR Code'}
+                            {activeView === 'categories' && '🗂️ Quản lý danh mục'}
+                        </h1>
+                        <p className="page-subtitle">Phụ tùng xe máy Quang Minh</p>
+                    </div>
+                    <div className="topbar-right">
+                        <div className="admin-user-info">
+                            <div className="user-avatar">👤</div>
+                            <span>Admin</span>
+                        </div>
                     </div>
                 </div>
+
+                {/* Content Area */}
+                <div className="admin-content-area">
+                    
+                    {/* Dashboard View */}
+                    {activeView === 'dashboard' && (
+                        <div className="dashboard-grid">
+                            <div className="stat-card">
+                                <div className="stat-icon">📦</div>
+                                <div className="stat-info">
+                                    <h3>{products.length}</h3>
+                                    <p>Tổng sản phẩm</p>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon">📊</div>
+                                <div className="stat-info">
+                                    <h3>{new Set(products.map(p => p.category)).size}</h3>
+                                    <p>Danh mục</p>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon">💰</div>
+                                <div className="stat-info">
+                                    <h3>5</h3>
+                                    <p>Bảng giá</p>
+                                </div>
+                            </div>
+                            <div className="stat-card">
+                                <div className="stat-icon">👥</div>
+                                <div className="stat-info">
+                                    <h3>Active</h3>
+                                    <p>Hệ thống</p>
+                                </div>
+                            </div>
+
+                            <div className="quick-actions-card">
+                                <h3>⚡ Thao tác nhanh</h3>
+                                <div className="quick-actions">
+                                    <button onClick={() => history.push('/admin/products')} className="quick-action-btn">
+                                        <span>📦</span> Xem sản phẩm
+                                    </button>
+                                    <button onClick={() => { history.push('/admin/products'); setShowForm(true); setEditingProduct(null); setFormData({ code: '', name: '', parentCategory: '', subcategory: '', category: '', unit: '', BBCL: '', BBPT: '', BL: '', BLVIP: '', HONDA247: '' }); }} className="quick-action-btn">
+                                        <span>➕</span> Thêm sản phẩm
+                                    </button>
+                                    <button onClick={() => history.push('/admin/users')} className="quick-action-btn">
+                                        <span>👥</span> Quản lý tài khoản
+                                    </button>
+                                    <button onClick={() => history.push('/admin/qr')} className="quick-action-btn">
+                                        <span>🔗</span> Tạo QR Code
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Products View */}
+                    {activeView === 'products' && (
+                        <div className="products-view">
+                            <div className="view-toolbar">
+                <div className="search-box-admin">
+                    <input
+                        type="text"
+                        placeholder="🔍 Tìm kiếm sản phẩm..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                
+                <div className="toolbar-buttons">
+                    <button 
+                        onClick={() => {
+                            setShowForm(true);
+                            setEditingProduct(null);
+                            setFormData({
+                                code: '', name: '', parentCategory: '', subcategory: '', category: '', unit: '',
+                                BBCL: '', BBPT: '', BL: '', BLVIP: '', HONDA247: ''
+                            });
+                        }}
+                        className="btn btn-primary"
+                    >
+                        ➕ Thêm sản phẩm
+                    </button>
+                    
+                    <button 
+                        onClick={downloadExcelTemplate}
+                        className="btn btn-outline"
+                    >
+                        📄 Tải file mẫu
+                    </button>
+                    
+                    <label className="btn btn-secondary file-upload-btn">
+                        {uploading ? '⏳ Đang import...' : '📤 Import Excel'}
+                        <input
+                            type="file"
+                            accept=".xlsx,.xls"
+                            onChange={handleExcelUpload}
+                            disabled={uploading}
+                            style={{ display: 'none' }}
+                        />
+                    </label>
+                </div>
+                            </div>
 
                 {showForm && (
                     <div className="product-form-modal">
@@ -370,11 +553,37 @@ const AdminPanel = () => {
                                     </div>
                                     
                                     <div className="form-group">
-                                        <label>Danh mục *</label>
+                                        <label>Danh mục cha *</label>
                                         <input
                                             type="text"
-                                            name="category"
-                                            value={formData.category}
+                                            name="parentCategory"
+                                            value={formData.parentCategory}
+                                            onChange={handleInputChange}
+                                            placeholder="VD: PHỤ TÙNG ĐỘNG CƠ"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label>Danh mục con *</label>
+                                        <input
+                                            type="text"
+                                            name="subcategory"
+                                            value={formData.subcategory}
+                                            onChange={handleInputChange}
+                                            placeholder="VD: Bộ lọc dầu"
+                                            required
+                                        />
+                                    </div>
+                                    
+                                    <div className="form-group">
+                                        <label>Đơn vị *</label>
+                                        <input
+                                            type="text"
+                                            name="unit"
+                                            value={formData.unit}
                                             onChange={handleInputChange}
                                             required
                                         />
@@ -393,14 +602,19 @@ const AdminPanel = () => {
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Đơn vị *</label>
+                                    <label>🖼️ URL Ảnh sản phẩm</label>
                                     <input
-                                        type="text"
-                                        name="unit"
-                                        value={formData.unit}
+                                        type="url"
+                                        name="image"
+                                        value={formData.image}
                                         onChange={handleInputChange}
-                                        required
+                                        placeholder="https://example.com/image.jpg"
                                     />
+                                    {formData.image && (
+                                        <div className="image-preview">
+                                            <img src={formData.image} alt="Preview" onError={(e) => e.target.style.display = 'none'} />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="price-section">
@@ -473,28 +687,21 @@ const AdminPanel = () => {
                     </div>
                 )}
 
-                {/* QR tool or table / states (clear conditional rendering to avoid nested ternary parsing issues) */}
-                {showQR && (
-                    <div className="admin-qr-container">
-                        <AdminQR onBack={() => setShowQR(false)} />
-                    </div>
-                )}
-
-                {!showQR && loading && (
+                {activeView === 'products' && loading && (
                     <div className="loading-state">
                         <div className="spinner"></div>
                         <p>Đang tải dữ liệu...</p>
                     </div>
                 )}
 
-                {!showQR && error && (
+                {activeView === 'products' && error && (
                     <div className="error-state">
                         <span>⚠️</span>
                         <p>{error}</p>
                     </div>
                 )}
 
-                {!showQR && !loading && !error && (
+                {activeView === 'products' && !loading && !error && (
                     <div className="products-table-container">
                         <div className="table-header">
                             <h3>Danh sách sản phẩm ({filteredProducts.length})</h3>
@@ -506,7 +713,8 @@ const AdminPanel = () => {
                                     <tr>
                                         <th>Mã SP</th>
                                         <th>Tên sản phẩm</th>
-                                        <th>Danh mục</th>
+                                        <th>Danh mục cha</th>
+                                        <th>Danh mục con</th>
                                         <th>Đơn vị</th>
                                         <th>BBCL</th>
                                         <th>BBPT</th>
@@ -521,7 +729,8 @@ const AdminPanel = () => {
                                         <tr key={product._id}>
                                             <td><code>{product.code}</code></td>
                                             <td className="product-name" title={product.name}>{product.name}</td>
-                                            <td><span className="category-badge">{product.category}</span></td>
+                                            <td><span className="category-badge parent">{product.parentCategory || product.category}</span></td>
+                                            <td><span className="category-badge sub">{product.subcategory || '-'}</span></td>
                                             <td>{product.unit}</td>
                                             <td className="price-cell">{(product.prices?.BBCL !== undefined ? product.prices.BBCL : product.BBCL)?.toLocaleString('vi-VN')}</td>
                                             <td className="price-cell">{(product.prices?.BBPT !== undefined ? product.prices.BBPT : product.BBPT)?.toLocaleString('vi-VN')}</td>
@@ -557,7 +766,35 @@ const AdminPanel = () => {
                         )}
                     </div>
                 )}
-            </div>
+                    </div>
+                )}
+
+                {/* QR Code View */}
+                {activeView === 'qr' && (
+                    <div className="admin-qr-container">
+                        {console.log('🔗 Rendering AdminQR component')}
+                        <AdminQR onBack={() => history.push('/admin')} />
+                    </div>
+                )}
+
+                {/* User Management View */}
+                {activeView === 'users' && (
+                    <div className="admin-usermgmt-container">
+                        {console.log('👥 Rendering AdminUserManagement component')}
+                        <AdminUserManagement onBack={() => history.push('/admin')} />
+                    </div>
+                )}
+
+                {/* Category Management View */}
+                {activeView === 'categories' && (
+                    <div className="admin-category-container">
+                        {console.log('🗂️ Rendering CategoryManagement component')}
+                        <CategoryManagement />
+                    </div>
+                )}
+
+                </div>
+            </main>
         </div>
     );
 };

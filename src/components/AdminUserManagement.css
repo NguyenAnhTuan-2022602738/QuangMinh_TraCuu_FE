@@ -1,0 +1,320 @@
+/* Container */
+.admin-user-management {
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Header */
+.um-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.um-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #1a1d29;
+}
+
+/* Error Banner */
+.um-error-banner {
+    background: #fee;
+    border: 1px solid #fcc;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #c00;
+}
+
+/* Grid Layout */
+.um-grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+    .um-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Form Section */
+.um-form {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    height: fit-content;
+}
+
+.um-form h3 {
+    margin: 0 0 1rem 0;
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.um-form label {
+    display: block;
+    margin: 1rem 0 0.4rem;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.um-form label:first-of-type {
+    margin-top: 0;
+}
+
+.um-form .required {
+    color: #ef4444;
+    margin-left: 2px;
+}
+
+.um-form input[type="text"],
+.um-form input[type="tel"] {
+    width: 100%;
+    padding: 0.65rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+}
+
+.um-form input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.um-form input:disabled {
+    background: #f5f5f5;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Price Options */
+.price-options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.5rem 0 1rem;
+}
+
+.price-opt {
+    padding: 0.5rem 0.8rem;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.price-opt:hover {
+    border-color: #c7d2fe;
+    background: #f8f9ff;
+}
+
+.price-opt.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: #fff;
+}
+
+.price-opt input[type="checkbox"] {
+    margin-right: 0.3rem;
+}
+
+/* Actions */
+.um-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* User List */
+.um-list {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.um-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.um-list-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #1a1d29;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+
+/* Loading & Empty States */
+.um-loading,
+.um-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #666;
+}
+
+.um-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.um-empty .hint {
+    font-size: 0.9rem;
+    color: #999;
+    margin-top: 0.5rem;
+}
+
+/* Table */
+.users-table {
+    overflow-x: auto;
+}
+
+.users-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.users-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.users-table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.users-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s;
+}
+
+.users-table tbody tr:hover {
+    background: #f8f9ff;
+}
+
+.users-table tbody tr.editing {
+    background: #fff9e6;
+}
+
+.users-table td {
+    padding: 0.75rem;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.users-table .name-col {
+    font-weight: 500;
+    color: #1a1d29;
+}
+
+.users-table code {
+    background: #f4f4f4;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #667eea;
+    font-family: 'Courier New', monospace;
+}
+
+/* Price Tags */
+.price-tags {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.price-tag {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.no-access {
+    color: #999;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+/* Action Buttons */
+.users-table .actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.btn-action {
+    padding: 0.4rem 0.6rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: transparent;
+}
+
+.btn-action:hover {
+    transform: scale(1.1);
+}
+
+.btn-edit {
+    background: #e0e7ff;
+}
+
+.btn-edit:hover {
+    background: #c7d2fe;
+}
+
+.btn-reset {
+    background: #fef3c7;
+}
+
+.btn-reset:hover {
+    background: #fde68a;
+}
+
+.btn-delete {
+    background: #fee2e2;
+}
+
+.btn-delete:hover {
+    background: #fecaca;
+}

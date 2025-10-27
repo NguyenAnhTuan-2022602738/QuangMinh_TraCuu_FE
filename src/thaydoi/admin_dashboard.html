@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Quang Minh Parts Management</title>
+    <meta name="description" content="Comprehensive admin dashboard for managing products, customers, inventory, and analytics for Quang Minh motorcycle parts business.">
+    <link rel="stylesheet" href="../css/main.css">
+  
+  <script type="module" src="https://static.rocket.new/rocket-web.js?_cfg=https%3A%2F%2Fquangminh7420back.builtwithrocket.new&_be=https%3A%2F%2Fapplication.rocket.new&_v=0.1.9"></script>
+  <script type="module" src="https://static.rocket.new/rocket-shot.js?v=0.0.1"></script>
+  </head>
+<body class="bg-background">
+    <!-- Admin Header -->
+    <nav class="bg-white shadow-sm border-b border-secondary-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo & Admin Badge -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-10 w-10 text-primary" viewBox="0 0 40 40" fill="currentColor">
+                            <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M12 20h16M20 12v16" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="20" cy="20" r="3" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h1 class="text-xl font-bold text-primary">Quang Minh Admin</h1>
+                        <p class="text-xs text-secondary-600">Quản lý hệ thống</p>
+                    </div>
+                    <div class="ml-4 px-3 py-1 bg-accent-100 text-accent-700 rounded-full text-xs font-medium">
+                        Admin Panel
+                    </div>
+                </div>
+
+                <!-- Admin Navigation -->
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="admin_dashboard.html" class="text-primary font-semibold px-3 py-2 rounded-md text-sm">Dashboard</a>
+                        <a href="homepage.html" class="text-secondary-600 hover:text-primary px-3 py-2 rounded-md text-sm transition-colors">Xem trang chủ</a>
+                        <a href="product_search.html" class="text-secondary-600 hover:text-primary px-3 py-2 rounded-md text-sm transition-colors">Tìm kiếm</a>
+                        <div class="relative">
+                            <button class="flex items-center text-secondary-600 hover:text-primary px-3 py-2 rounded-md text-sm transition-colors" onclick="toggleUserMenu()">
+                                <img src="https://images.unsplash.com/photo-1578401058525-35aaec0b4658" 
+                                     alt="Admin user profile avatar" 
+                                     class="w-8 h-8 rounded-full mr-2 object-cover"
+                                     onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                Admin
+                                <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <a href="customer_login.html" class="block px-4 py-2 text-sm text-secondary-700 hover:bg-secondary-50">Đăng xuất</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button type="button" class="text-secondary-600 hover:text-primary p-2" onclick="toggleMobileMenu()">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-secondary-200">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="admin_dashboard.html" class="text-primary font-semibold block px-3 py-2 rounded-md text-base">Dashboard</a>
+                <a href="homepage.html" class="text-secondary-600 hover:text-primary block px-3 py-2 rounded-md text-base">Xem trang chủ</a>
+                <a href="product_search.html" class="text-secondary-600 hover:text-primary block px-3 py-2 rounded-md text-base">Tìm kiếm</a>
+                <a href="customer_login.html" class="text-secondary-600 hover:text-primary block px-3 py-2 rounded-md text-base">Đăng xuất</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white shadow-sm border-r border-secondary-200 hidden lg:block">
+            <div class="p-6">
+                <nav class="space-y-2">
+                    <a href="#dashboard" onclick="showSection('dashboard')" class="nav-item active flex items-center px-4 py-3 text-sm font-medium rounded-lg">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Tổng quan
+                    </a>
+                    <a href="#products" onclick="showSection('products')" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-lg">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                        Quản lý sản phẩm
+                    </a>
+                    <a href="#categories" onclick="showSection('categories')" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-lg">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        Danh mục
+                    </a>
+                    <a href="#customers" onclick="showSection('customers')" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-lg">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                        </svg>
+                        Khách hàng
+                    </a>
+                    <a href="#inventory" onclick="showSection('inventory')" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-lg">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        Kho hàng
+                    </a>
+                    <a href="#content" onclick="showSection('content')" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-lg">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Nội dung
+                    </a>
+                    <a href="#reports" onclick="showSection('reports')" class="nav-item flex items-center px-4 py-3 text-sm font-medium rounded-lg">
+                        <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Báo cáo
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 lg:p-8">
+            <!-- Dashboard Overview Section -->
+            <div id="dashboard-section" class="section-content">
+                <!-- Header with Date & Time -->
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-secondary-900">Dashboard Tổng quan</h1>
+                        <p class="text-secondary-600 mt-1">Cập nhật lúc: 14/10/2025 - 08:45</p>
+                    </div>
+                    <div class="mt-4 sm:mt-0 flex space-x-3">
+                        <button class="btn-secondary text-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
+                            </svg>
+                            Xuất báo cáo
+                        </button>
+                        <button class="btn-primary text-sm" onclick="refreshDashboard()">
+                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Làm mới
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-primary-100 rounded-lg">
+                                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-secondary-600">Doanh thu hôm nay</p>
+                                <p class="text-2xl font-bold text-secondary-900">45.2M₫</p>
+                                <p class="text-sm text-success-600">+12.5% so với hôm qua</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-success-100 rounded-lg">
+                                <svg class="w-6 h-6 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M8 11v6h8v-6M8 11H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-2" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-secondary-600">Đơn hàng mới</p>
+                                <p class="text-2xl font-bold text-secondary-900">127</p>
+                                <p class="text-sm text-success-600">+8.2% so với hôm qua</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-accent-100 rounded-lg">
+                                <svg class="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-secondary-600">Sản phẩm</p>
+                                <p class="text-2xl font-bold text-secondary-900">50,247</p>
+                                <p class="text-sm text-secondary-500">Tổng trong kho</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-warning-100 rounded-lg">
+                                <svg class="w-6 h-6 text-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-secondary-600">Cảnh báo kho</p>
+                                <p class="text-2xl font-bold text-secondary-900">23</p>
+                                <p class="text-sm text-warning-600">Sản phẩm sắp hết</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Analytics -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Sales Chart -->
+                    <div class="card">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-lg font-semibold text-secondary-900">Doanh thu 7 ngày qua</h3>
+                            <select class="text-sm border border-secondary-300 rounded-lg px-3 py-1">
+                                <option>7 ngày</option>
+                                <option>30 ngày</option>
+                                <option>90 ngày</option>
+                            </select>
+                        </div>
+                        <div class="h-64 bg-secondary-50 rounded-lg flex items-center justify-center">
+                            <svg class="w-full h-full" viewBox="0 0 400 200" aria-label="Biểu đồ doanh thu 7 ngày qua">
+                                <defs>
+                                    <linearGradient id="salesGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:0.3" />
+                                        <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:0" />
+                                    </linearGradient>
+                                </defs>
+                                <polyline fill="none" stroke="#3B82F6" stroke-width="3" points="50,150 100,120 150,100 200,80 250,90 300,70 350,60"/>
+                                <polyline fill="url(#salesGradient)" points="50,150 100,120 150,100 200,80 250,90 300,70 350,60 350,180 50,180"/>
+                                <text x="50" y="195" class="text-xs fill-secondary-600">T2</text>
+                                <text x="100" y="195" class="text-xs fill-secondary-600">T3</text>
+                                <text x="150" y="195" class="text-xs fill-secondary-600">T4</text>
+                                <text x="200" y="195" class="text-xs fill-secondary-600">T5</text>
+                                <text x="250" y="195" class="text-xs fill-secondary-600">T6</text>
+                                <text x="300" y="195" class="text-xs fill-secondary-600">T7</text>
+                                <text x="350" y="195" class="text-xs fill-secondary-600">CN</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Popular Products -->
+                    <div class="card">
+                        <h3 class="text-lg font-semibold text-secondary-900 mb-6">Sản phẩm bán chạy</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="https://images.unsplash.com/photo-1667299290056-26b1fc52b91f" 
+                                         alt="Lọc gió Honda Wave - sản phẩm bán chạy nhất" 
+                                         class="w-10 h-10 rounded-lg object-cover"
+                                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-secondary-900">Lọc gió Honda Wave</p>
+                                        <p class="part-code">17220-KVB-900</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-secondary-900">89 bán</p>
+                                    <p class="text-xs text-success-600">+15%</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="https://images.unsplash.com/photo-1539782595598-16f7d4c8d70f" 
+                                         alt="Má phanh Honda Future - sản phẩm bán chạy thứ hai" 
+                                         class="w-10 h-10 rounded-lg object-cover"
+                                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-secondary-900">Má phanh Honda Future</p>
+                                        <p class="part-code">06455-KVB-900</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-secondary-900">67 bán</p>
+                                    <p class="text-xs text-success-600">+8%</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <img src="https://images.unsplash.com/photo-1660405448263-7c055f004541" 
+                                         alt="Lọc dầu Honda Winner - sản phẩm bán chạy thứ ba" 
+                                         class="w-10 h-10 rounded-lg object-cover"
+                                         onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-secondary-900">Lọc dầu Honda Winner</p>
+                                        <p class="part-code">15410-KVB-900</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-secondary-900">54 bán</p>
+                                    <p class="text-xs text-warning-600">-2%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities & Alerts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Recent Activities -->
+                    <div class="card">
+                        <h3 class="text-lg font-semibold text-secondary-900 mb-6">Hoạt động gần đây</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <div class="w-2 h-2 bg-success rounded-full mt-2 mr-3"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-secondary-900">Đã thêm 15 sản phẩm mới vào danh mục "Hệ thống điện"</p>
+                                    <p class="text-xs text-secondary-500">5 phút trước</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="w-2 h-2 bg-primary rounded-full mt-2 mr-3"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-secondary-900">Khách hàng "Tiệm xe Minh Tuấn" đã được nâng cấp lên hạng Wholesale</p>
+                                    <p class="text-xs text-secondary-500">12 phút trước</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="w-2 h-2 bg-accent rounded-full mt-2 mr-3"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-secondary-900">Cập nhật giá cho 247 sản phẩm trong danh mục "Phanh & lốp"</p>
+                                    <p class="text-xs text-secondary-500">25 phút trước</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start">
+                                <div class="w-2 h-2 bg-warning rounded-full mt-2 mr-3"></div>
+                                <div class="flex-1">
+                                    <p class="text-sm text-secondary-900">Cảnh báo: Sản phẩm <span class="part-code">17220-KVB-900</span> sắp hết hàng</p>
+                                    <p class="text-xs text-secondary-500">1 giờ trước</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Alerts -->
+                    <div class="card">
+                        <h3 class="text-lg font-semibold text-secondary-900 mb-6">Cảnh báo hệ thống</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 bg-warning-50 border border-warning-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-warning-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-warning-800">23 sản phẩm sắp hết hàng</p>
+                                        <p class="text-xs text-warning-600">Cần nhập thêm hàng trong tuần này</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-error-50 border border-error-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-error-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-error-800">5 sản phẩm hết hàng</p>
+                                        <p class="text-xs text-error-600">Cần cập nhật trạng thái ngay</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 bg-success-50 border border-success-200 rounded-lg">
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 text-success-600 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-success-800">Backup dữ liệu thành công</p>
+                                        <p class="text-xs text-success-600">Lần cuối: 14/10/2025 - 02:00</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Management Section -->
+            <div id="products-section" class="section-content hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+                    <div>
+                        <h1 class="text-3xl font-bold text-secondary-900">Quản lý sản phẩm</h1>
+                        <p class="text-secondary-600 mt-1">Thêm, sửa, xóa và quản lý tất cả sản phẩm</p>
+                    </div>
+                    <div class="mt-4 sm:mt-0 flex space-x-3">
+                        <button class="btn-secondary text-sm" onclick="showBulkImport()">
+                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                            </svg>
+                            Nhập hàng loạt
+                        </button>
+                        <button class="btn-primary text-sm" onclick="showAddProduct()">
+                            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Thêm sản phẩm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="card mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Tìm kiếm</label>
+                            <input type="text" placeholder="Tên sản phẩm hoặc mã..." class="input-field">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Danh mục</label>
+                            <select class="input-field">
+                                <option>Tất cả danh mục</option>
+                                <option>Hệ thống điện</option>
+                                <option>Động cơ</option>
+                                <option>Phanh & lốp</option>
+                                <option>Lọc & dầu</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Trạng thái</label>
+                            <select class="input-field">
+                                <option>Tất cả</option>
+                                <option>Còn hàng</option>
+                                <option>Sắp hết</option>
+                                <option>Hết hàng</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button class="btn-primary w-full">Lọc</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="card">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-secondary-200">
+                            <thead class="bg-secondary-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">
+                                        <input type="checkbox" class="rounded border-secondary-300">
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Sản phẩm</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Mã phụ tùng</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Danh mục</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Giá bán lẻ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Tồn kho</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Trạng thái</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-secondary-200">
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-secondary-300">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://images.unsplash.com/photo-1628060690597-30d8abc6f103" 
+                                                 alt="Lọc gió Honda Wave - sản phẩm quản lý" 
+                                                 class="w-10 h-10 rounded-lg object-cover"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-secondary-900">Lọc gió Honda Wave</div>
+                                                <div class="text-sm text-secondary-500">Phụ tùng chính hãng</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="part-code">17220-KVB-900</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">Lọc & dầu</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">85.000₫</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">247</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-success">Còn hàng</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-primary hover:text-primary-700 mr-3">Sửa</button>
+                                        <button class="text-error hover:text-error-700">Xóa</button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-secondary-300">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://images.unsplash.com/photo-1725633997435-01fd286dc4ac" 
+                                                 alt="Má phanh Honda Future - sản phẩm quản lý" 
+                                                 class="w-10 h-10 rounded-lg object-cover"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-secondary-900">Má phanh Honda Future</div>
+                                                <div class="text-sm text-secondary-500">Phụ tùng chính hãng</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="part-code">06455-KVB-900</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">Phanh & lốp</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">125.000₫</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">18</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-warning">Sắp hết</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-primary hover:text-primary-700 mr-3">Sửa</button>
+                                        <button class="text-error hover:text-error-700">Xóa</button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" class="rounded border-secondary-300">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <img src="https://images.unsplash.com/photo-1695950682652-86b73812a9b2" 
+                                                 alt="Lọc dầu Honda Winner - sản phẩm quản lý" 
+                                                 class="w-10 h-10 rounded-lg object-cover"
+                                                 onerror="this.src='https://images.unsplash.com/photo-1584824486509-112e4181ff6b?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'; this.onerror=null;">
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-secondary-900">Lọc dầu Honda Winner</div>
+                                                <div class="text-sm text-secondary-500">Phụ tùng chính hãng</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="part-code">15410-KVB-900</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">Lọc & dầu</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">95.000₫</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-secondary-900">0</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-error">Hết hàng</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button class="text-primary hover:text-primary-700 mr-3">Sửa</button>
+                                        <button class="text-error hover:text-error-700">Xóa</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="px-6 py-4 border-t border-secondary-200">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-secondary-700">
+                                Hiển thị <span class="font-medium">1</span> đến <span class="font-medium">10</span> của <span class="font-medium">247</span> kết quả
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="px-3 py-1 border border-secondary-300 rounded text-sm hover:bg-secondary-50">Trước</button>
+                                <button class="px-3 py-1 bg-primary text-white rounded text-sm">1</button>
+                                <button class="px-3 py-1 border border-secondary-300 rounded text-sm hover:bg-secondary-50">2</button>
+                                <button class="px-3 py-1 border border-secondary-300 rounded text-sm hover:bg-secondary-50">3</button>
+                                <button class="px-3 py-1 border border-secondary-300 rounded text-sm hover:bg-secondary-50">Sau</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other sections (categories, customers, inventory, content, reports) would be implemented similarly -->
+            <!-- For brevity, showing placeholder sections -->
+            
+            <div id="categories-section" class="section-content hidden">
+                <div class="text-center py-12">
+                    <h2 class="text-2xl font-bold text-secondary-900 mb-4">Quản lý danh mục</h2>
+                    <p class="text-secondary-600">Tính năng đang được phát triển...</p>
+                </div>
+            </div>
+
+            <div id="customers-section" class="section-content hidden">
+                <div class="text-center py-12">
+                    <h2 class="text-2xl font-bold text-secondary-900 mb-4">Quản lý khách hàng</h2>
+                    <p class="text-secondary-600">Tính năng đang được phát triển...</p>
+                </div>
+            </div>
+
+            <div id="inventory-section" class="section-content hidden">
+                <div class="text-center py-12">
+                    <h2 class="text-2xl font-bold text-secondary-900 mb-4">Quản lý kho hàng</h2>
+                    <p class="text-secondary-600">Tính năng đang được phát triển...</p>
+                </div>
+            </div>
+
+            <div id="content-section" class="section-content hidden">
+                <div class="text-center py-12">
+                    <h2 class="text-2xl font-bold text-secondary-900 mb-4">Quản lý nội dung</h2>
+                    <p class="text-secondary-600">Tính năng đang được phát triển...</p>
+                </div>
+            </div>
+
+            <div id="reports-section" class="section-content hidden">
+                <div class="text-center py-12">
+                    <h2 class="text-2xl font-bold text-secondary-900 mb-4">Báo cáo & thống kê</h2>
+                    <p class="text-secondary-600">Tính năng đang được phát triển...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-modal max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="p-6 border-b border-secondary-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-secondary-900">Thêm sản phẩm mới</h3>
+                        <button onclick="hideAddProduct()" class="text-secondary-400 hover:text-secondary-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <form class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Tên sản phẩm *</label>
+                            <input type="text" class="input-field" placeholder="Nhập tên sản phẩm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Mã phụ tùng *</label>
+                            <input type="text" class="input-field font-mono" placeholder="15410-KVB-900">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Danh mục *</label>
+                            <select class="input-field">
+                                <option>Chọn danh mục</option>
+                                <option>Hệ thống điện</option>
+                                <option>Động cơ</option>
+                                <option>Phanh & lốp</option>
+                                <option>Lọc & dầu</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Dòng xe tương thích</label>
+                            <select class="input-field">
+                                <option>Chọn dòng xe</option>
+                                <option>Honda Wave</option>
+                                <option>Honda Future</option>
+                                <option>Honda Winner</option>
+                                <option>Honda Blade</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-secondary-700 mb-2">Mô tả sản phẩm</label>
+                        <textarea class="input-field" rows="3" placeholder="Nhập mô tả chi tiết sản phẩm"></textarea>
+                    </div>
+
+                    <!-- Pricing Tiers -->
+                    <div>
+                        <label class="block text-sm font-medium text-secondary-700 mb-4">Bảng giá theo hạng khách hàng</label>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-secondary-600 mb-1">Giá bán lẻ (₫)</label>
+                                    <input type="number" class="input-field" placeholder="150000">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-secondary-600 mb-1">Giá sỉ (₫)</label>
+                                    <input type="number" class="input-field" placeholder="135000">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-secondary-600 mb-1">Giá đại lý (₫)</label>
+                                    <input type="number" class="input-field" placeholder="120000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-secondary-700 mb-2">Hình ảnh sản phẩm</label>
+                        <div class="border-2 border-dashed border-secondary-300 rounded-lg p-6 text-center">
+                            <svg class="mx-auto h-12 w-12 text-secondary-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <div class="mt-4">
+                                <label class="cursor-pointer">
+                                    <span class="mt-2 block text-sm font-medium text-secondary-900">Kéo thả hoặc click để chọn ảnh</span>
+                                    <input type="file" class="sr-only" multiple accept="image/*">
+                                </label>
+                                <p class="mt-1 text-xs text-secondary-500">PNG, JPG, GIF tối đa 10MB</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Số lượng tồn kho</label>
+                            <input type="number" class="input-field" placeholder="100">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-secondary-700 mb-2">Trạng thái</label>
+                            <select class="input-field">
+                                <option>Còn hàng</option>
+                                <option>Sắp hết</option>
+                                <option>Hết hàng</option>
+                                <option>Ngừng kinh doanh</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-6 border-t border-secondary-200">
+                        <button type="button" onclick="hideAddProduct()" class="btn-secondary">Hủy</button>
+                        <button type="submit" class="btn-primary">Thêm sản phẩm</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Import Modal -->
+    <div id="bulk-import-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-xl shadow-modal max-w-lg w-full">
+                <div class="p-6 border-b border-secondary-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-secondary-900">Nhập hàng loạt</h3>
+                        <button onclick="hideBulkImport()" class="text-secondary-400 hover:text-secondary-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <div>
+                        <p class="text-sm text-secondary-600 mb-4">Tải lên file Excel hoặc CSV để nhập nhiều sản phẩm cùng lúc</p>
+                        <div class="border-2 border-dashed border-secondary-300 rounded-lg p-6 text-center">
+                            <svg class="mx-auto h-12 w-12 text-secondary-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                            </svg>
+                            <div class="mt-4">
+                                <label class="cursor-pointer">
+                                    <span class="mt-2 block text-sm font-medium text-secondary-900">Chọn file để tải lên</span>
+                                    <input type="file" class="sr-only" accept=".xlsx,.xls,.csv">
+                                </label>
+                                <p class="mt-1 text-xs text-secondary-500">Excel (.xlsx, .xls) hoặc CSV</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-secondary-50 rounded-lg p-4">
+                        <h4 class="text-sm font-medium text-secondary-900 mb-2">Hướng dẫn:</h4>
+                        <ul class="text-xs text-secondary-600 space-y-1">
+                            <li>• Tải file mẫu để xem định dạng chuẩn</li>
+                            <li>• Đảm bảo các cột bắt buộc: Tên, Mã phụ tùng, Danh mục</li>
+                            <li>• Giá cả phải ở định dạng số, không có ký tự đặc biệt</li>
+                        </ul>
+                        <button class="text-primary text-xs font-medium mt-2 hover:text-primary-700">Tải file mẫu</button>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" onclick="hideBulkImport()" class="btn-secondary">Hủy</button>
+                        <button type="button" class="btn-primary">Bắt đầu nhập</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Navigation functionality
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('user-menu');
+            userMenu.classList.toggle('hidden');
+        }
+
+        // Section navigation
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show selected section
+            document.getElementById(sectionName + '-section').classList.remove('hidden');
+
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+        }
+
+        // Modal functions
+        function showAddProduct() {
+            document.getElementById('add-product-modal').classList.remove('hidden');
+        }
+
+        function hideAddProduct() {
+            document.getElementById('add-product-modal').classList.add('hidden');
+        }
+
+        function showBulkImport() {
+            document.getElementById('bulk-import-modal').classList.remove('hidden');
+        }
+
+        function hideBulkImport() {
+            document.getElementById('bulk-import-modal').classList.add('hidden');
+        }
+
+        // Dashboard refresh
+        function refreshDashboard() {
+            // Simulate data refresh
+            const refreshBtn = event.target;
+            const originalText = refreshBtn.innerHTML;
+            refreshBtn.innerHTML = '<svg class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>Đang tải...';
+            refreshBtn.disabled = true;
+
+            setTimeout(() => {
+                refreshBtn.innerHTML = originalText;
+                refreshBtn.disabled = false;
+                
+                // Show success notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-success text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                notification.textContent = 'Dữ liệu đã được cập nhật';
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }, 2000);
+        }
+
+        // Real-time notifications
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-error' : 'bg-primary';
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Simulate real-time updates
+        setInterval(() => {
+            const activities = [
+                'Khách hàng mới đăng ký tài khoản',
+                'Đơn hàng mới được tạo',
+                'Sản phẩm được cập nhật giá',
+                'Cảnh báo tồn kho thấp'
+            ];
+            
+            if (Math.random() > 0.95) { // 5% chance every interval
+                const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+                showNotification(randomActivity, 'info');
+            }
+        }, 10000); // Check every 10 seconds
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set active navigation
+            document.querySelector('.nav-item').classList.add('active');
+            
+            // Auto-refresh dashboard every 5 minutes
+            setInterval(() => {
+                if (!document.getElementById('dashboard-section').classList.contains('hidden')) {
+                    // Silently refresh data in background
+                    console.log('Auto-refreshing dashboard data...');
+                }
+            }, 300000); // 5 minutes
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(event) {
+            const modals = ['add-product-modal', 'bulk-import-modal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (event.target === modal) {
+                    modal.classList.add('hidden');
+                }
+            });
+
+            // Close user menu when clicking outside
+            const userMenu = document.getElementById('user-menu');
+            if (!event.target.closest('.relative') && !userMenu.classList.contains('hidden')) {
+                userMenu.classList.add('hidden');
+            }
+        });
+
+        // Add CSS for active navigation state
+        const style = document.createElement('style');
+        style.textContent = `
+            .nav-item.active {
+                background-color: var(--color-primary-50);
+                color: var(--color-primary);
+            }
+            .nav-item {
+                color: var(--color-secondary-600);
+                transition: all 250ms ease;
+            }
+            .nav-item:hover {
+                background-color: var(--color-secondary-50);
+                color: var(--color-primary);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+<script id="dhws-dataInjector" src="../public/dhws-data-injector.js"></script>
+</body>
+</html>

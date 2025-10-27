@@ -3,7 +3,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+    background: linear-gradient(135deg, #f0f7ff 0%, #eef2ff 100%);
     padding: 2rem;
 }
 
@@ -21,15 +21,15 @@
 }
 
 .login-header {
-    background: var(--gradient-primary);
+    background: linear-gradient(90deg,#6366f1,#60a5fa);
     color: white;
-    padding: 3rem 2rem 2rem;
+    padding: 2.25rem 2rem 1.25rem;
     text-align: center;
 }
 
 .admin-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
+    font-size: 3.2rem;
+    margin-bottom: 0.5rem;
     animation: pulse 2s infinite;
 }
 

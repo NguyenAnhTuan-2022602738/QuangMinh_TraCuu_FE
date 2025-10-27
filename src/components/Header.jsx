@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useHistory } from 'react-router-dom';
 import CustomerTypeSelector from './CustomerTypeSelector';
 import './Header.css';
 
 const Header = ({ showSelector = true, priceType = null }) => {
     const [menuOpen, setMenuOpen] = useState(false);
+    const history = useHistory();
+    const [customerLoggedIn, setCustomerLoggedIn] = useState(false);
     
     // Build navigation paths based on whether price type is locked
     const getNavPath = (path) => {
@@ -30,6 +32,19 @@ const Header = ({ showSelector = true, priceType = null }) => {
         };
     }, [menuOpen]);
 
+    useEffect(() => {
+        const token = localStorage.getItem('customerToken');
+        setCustomerLoggedIn(!!token);
+    }, []);
+
+    const handleCustomerLogout = () => {
+        localStorage.removeItem('customerToken');
+        localStorage.removeItem('customerAllowed');
+        // redirect to homepage or price selector
+        history.push('/');
+        setCustomerLoggedIn(false);
+    };
+
 
     return (
         <header className="header">
@@ -38,10 +53,7 @@ const Header = ({ showSelector = true, priceType = null }) => {
                 <div className="header-top">
                     <Link to={getNavPath('/')} className="header-logo">
                         <div className="logo-icon">
-                            <img src="/logo.png" alt="Quang Minh Logo" onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.parentElement.innerHTML = '<div style="color:#dc2626;font-weight:bold;font-size:1.5rem">QM</div>';
-                            }} />
+                            <img src="/logo.png" alt="Quang Minh Logo" />
                         </div>
                         <div>
                             <div className="logo-text">Phụ tùng xe máy Quang Minh</div>
@@ -105,6 +117,11 @@ const Header = ({ showSelector = true, priceType = null }) => {
                     {showSelector && (
                         <div className="header-actions">
                             <CustomerTypeSelector />
+                        </div>
+                    )}
+                    {customerLoggedIn && (
+                        <div className="header-actions">
+                            <button className="btn btn-outline" onClick={handleCustomerLogout}>Đăng xuất</button>
                         </div>
                     )}
                 </div>

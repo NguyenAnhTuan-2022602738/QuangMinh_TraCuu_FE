@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import './AdminLogin.css';
 
@@ -7,6 +7,14 @@ const AdminLogin = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const history = useHistory();
+    const isMounted = useRef(true);
+
+    // Cleanup on unmount to prevent memory leak
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -26,6 +34,9 @@ const AdminLogin = () => {
 
             const data = await response.json();
 
+            // Only update state if component is still mounted
+            if (!isMounted.current) return;
+
             if (response.ok) {
                 // Lưu token vào localStorage
                 localStorage.setItem('adminToken', data.token);
@@ -35,9 +46,14 @@ const AdminLogin = () => {
                 setError(data.message || 'Mật khẩu không đúng');
             }
         } catch (err) {
+            // Only update state if component is still mounted
+            if (!isMounted.current) return;
             setError('Lỗi kết nối server');
         } finally {
-            setLoading(false);
+            // Only update state if component is still mounted
+            if (isMounted.current) {
+                setLoading(false);
+            }
         }
     };
 
@@ -62,6 +78,7 @@ const AdminLogin = () => {
                                 placeholder="Nhập mật khẩu admin"
                                 required
                                 autoFocus
+                                autoComplete="current-password"
                             />
                         </div>
 

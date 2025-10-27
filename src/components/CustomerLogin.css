@@ -1,0 +1,31 @@
+.customer-login-page {
+	min-height: 80vh;
+	display:flex;
+	align-items:center;
+	justify-content:center;
+	padding:2rem;
+	background: linear-gradient(180deg, #f7fafc 0%, #eef2ff 100%);
+}
+.login-card {
+	width: 420px;
+	background: linear-gradient(180deg, #ffffffdd, #ffffff);
+	padding: 1.25rem 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 12px 30px rgba(16,24,40,0.08);
+	border: 1px solid rgba(99,102,241,0.06);
+}
+.login-header { display:flex; gap:0.75rem; align-items:center; margin-bottom:0.5rem; }
+.logo-icon { width:44px; height:44px; border-radius:8px; background:white; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; }
+.login-card h2 { margin:0; font-size:1.25rem; }
+.login-form label { display:block; margin-top:0.75rem; font-weight:600; color:#374151; }
+.login-form input { width:100%; padding:0.65rem; margin-top:0.3rem; border:1px solid #e6e9f8; border-radius:8px; font-size:0.95rem; }
+.field-row { display:flex; gap:0.5rem; align-items:center; }
+.show-pass { margin-left:0.5rem; background:none; border:none; color:#6b7280; cursor:pointer; }
+.actions { margin-top:1rem; display:flex; gap:0.5rem; align-items:center; }
+.forgot { margin-left:auto; font-size:0.9rem; color:#6b7280; cursor:pointer; }
+.error { color:#dc2626; margin-top:0.75rem; font-size:0.95rem; }
+.small-note { margin-top:0.75rem; font-size:0.9rem; color:#374151; }
+
+@media (max-width: 480px) {
+	.login-card { width: 92%; padding: 1rem; }
+}
