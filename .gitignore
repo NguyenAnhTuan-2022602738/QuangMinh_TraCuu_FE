@@ -15,6 +15,9 @@ yarn-error.log*
 .env
 .env.local
 .env.*.local
+# Allow .env.production and .env.development to be committed
+!.env.production
+!.env.development
 
 # Vercel build output
 .vercel/
