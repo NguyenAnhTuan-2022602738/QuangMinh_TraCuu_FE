@@ -56,15 +56,16 @@ const ProductCatalogByCategory = () => {
             
             // Handle both paginated and non-paginated responses for backward compatibility
             if (data.pagination) {
-                setProducts(data.products || []);
+                setProducts(Array.isArray(data.products) ? data.products : []);
                 setPagination(data.pagination);
             } else {
                 // Fallback for non-paginated response
-                setProducts(data || []);
+                const productsData = Array.isArray(data) ? data : [];
+                setProducts(productsData);
                 setPagination({
                     currentPage: 1,
                     totalPages: 1,
-                    totalProducts: (data || []).length,
+                    totalProducts: productsData.length,
                     productsPerPage: productsPerPage,
                     hasNextPage: false,
                     hasPrevPage: false
@@ -80,7 +81,7 @@ const ProductCatalogByCategory = () => {
         }
     };
 
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = (products || []).filter(product => {
         const searchLower = searchTerm.toLowerCase();
         return (
             product.code?.toLowerCase().includes(searchLower) ||
