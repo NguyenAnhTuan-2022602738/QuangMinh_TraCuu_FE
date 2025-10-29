@@ -137,7 +137,8 @@ const ProductCatalogByCategory = () => {
                     />
                 </div>
 
-                <div className="subcategory-filters">
+                {/* Desktop: Filter chips */}
+                <div className="subcategory-filters desktop-filters">
                     <button
                         className={`filter-chip ${selectedSubcategory === 'all' ? 'active' : ''}`}
                         onClick={() => setSelectedSubcategory('all')}
@@ -153,6 +154,21 @@ const ProductCatalogByCategory = () => {
                             {sub}
                         </button>
                     ))}
+                </div>
+
+                {/* Mobile: Dropdown select */}
+                <div className="subcategory-select-mobile">
+                    <label>Danh mục:</label>
+                    <select
+                        value={selectedSubcategory}
+                        onChange={(e) => setSelectedSubcategory(e.target.value)}
+                        className="category-select"
+                    >
+                        <option value="all">Tất cả danh mục</option>
+                        {subcategories.map((sub, index) => (
+                            <option key={index} value={sub}>{sub}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="per-page-filter">
