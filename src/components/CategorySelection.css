@@ -194,7 +194,7 @@
 
     /* Hiện tìm kiếm trên mobile */
     .category-search-mobile {
-        display: block;
+        display: block !important;
         margin-bottom: 1rem;
     }
 
@@ -215,7 +215,7 @@
 
     /* Nút toggle trên mobile */
     .toggle-categories-btn {
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
         width: 100%;
@@ -243,17 +243,17 @@
 
     /* Ẩn danh mục khi chưa expand trên mobile */
     .categories-grid {
-        max-height: 0;
-        overflow: hidden;
-        opacity: 0;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        opacity: 0 !important;
         grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
         transition: all 0.4s ease;
     }
 
     .categories-grid.expanded {
-        max-height: 5000px;
-        opacity: 1;
+        max-height: 5000px !important;
+        opacity: 1 !important;
         margin-bottom: 1rem;
     }
 
