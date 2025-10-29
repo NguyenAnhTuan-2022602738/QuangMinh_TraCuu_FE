@@ -21,6 +21,14 @@ const ProductCatalog = () => {
     const [productsPerPage, setProductsPerPage] = useState(12);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalProducts: 0,
+        productsPerPage: 12,
+        hasNextPage: false,
+        hasPrevPage: false
+    });
 
     const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -61,8 +69,8 @@ const ProductCatalog = () => {
         }
     }, [API_URL]);
 
-    // Fetch products based on filters
-    const fetchProducts = useCallback(async () => {
+    // Fetch products based on filters with server-side pagination
+    const fetchProducts = useCallback(async (page = 1) => {
         try {
             setLoading(true);
             const token = localStorage.getItem('customerToken');
@@ -70,18 +78,35 @@ const ProductCatalog = () => {
             
             let url;
             if (selectedParentCategory === 'all') {
-                // Fetch all products with price type
-                url = `${API_URL}/products/${customerType}`;
+                // Fetch all products with price type and pagination
+                url = `${API_URL}/products/${customerType}?page=${page}&limit=${productsPerPage}`;
             } else {
-                // Fetch products by parent category with price type
-                url = `${API_URL}/products/categories/${encodeURIComponent(selectedParentCategory)}/products?priceType=${customerType}`;
+                // Fetch products by parent category with price type and pagination
+                url = `${API_URL}/products/categories/${encodeURIComponent(selectedParentCategory)}/products?priceType=${customerType}&page=${page}&limit=${productsPerPage}`;
                 if (selectedSubcategory !== 'all') {
                     url += `&subcategory=${encodeURIComponent(selectedSubcategory)}`;
                 }
             }
             
             const response = await axios.get(url, { headers });
-            setProducts(response.data);
+            
+            // Handle both paginated and non-paginated responses for backward compatibility
+            if (response.data.pagination) {
+                setProducts(response.data.products || []);
+                setPagination(response.data.pagination);
+            } else {
+                // Fallback for non-paginated response
+                setProducts(response.data || []);
+                setPagination({
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalProducts: (response.data || []).length,
+                    productsPerPage: productsPerPage,
+                    hasNextPage: false,
+                    hasPrevPage: false
+                });
+            }
+            
             setError(null);
         } catch (err) {
             console.error('Error fetching products:', err);
@@ -90,7 +115,7 @@ const ProductCatalog = () => {
         } finally {
             setLoading(false);
         }
-    }, [customerType, selectedParentCategory, selectedSubcategory, API_URL]);
+    }, [customerType, selectedParentCategory, selectedSubcategory, productsPerPage, API_URL]);
 
     useEffect(() => {
         fetchParentCategories();
@@ -99,11 +124,12 @@ const ProductCatalog = () => {
     useEffect(() => {
         fetchSubcategories(selectedParentCategory);
         setSelectedSubcategory('all'); // Reset subcategory when parent changes
+        setCurrentPage(1); // Reset to first page when category changes
     }, [selectedParentCategory, fetchSubcategories]);
 
     useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]);
+        fetchProducts(currentPage);
+    }, [fetchProducts, currentPage]);
 
     // Prevent body scroll when modal is open
     useEffect(() => {
@@ -144,6 +170,12 @@ const ProductCatalog = () => {
             params.set('parent', parentCat);
         }
         history.push({ search: params.toString() });
+    };
+
+    // Handle products per page change
+    const handleProductsPerPageChange = (newLimit) => {
+        setProductsPerPage(newLimit);
+        setCurrentPage(1); // Reset to first page when changing page size
     };
 
     // Filter products by search term
@@ -196,7 +228,7 @@ const ProductCatalog = () => {
                     >
                         <span className="sidebar-icon">📦</span>
                         <span className="sidebar-label">Tất cả sản phẩm</span>
-                        <span className="sidebar-count">{products.length}</span>
+                        <span className="sidebar-count">{pagination.totalProducts}</span>
                     </button>
                     {parentCategories.map((cat, index) => (
                         <button
@@ -273,10 +305,7 @@ const ProductCatalog = () => {
                         <label>Hiển thị:</label>
                         <select
                             value={productsPerPage}
-                            onChange={(e) => {
-                                setProductsPerPage(Number(e.target.value));
-                                setCurrentPage(1);
-                            }}
+                            onChange={(e) => handleProductsPerPageChange(Number(e.target.value))}
                             className="per-page-select"
                         >
                             <option value={12}>12 sản phẩm</option>
@@ -289,8 +318,9 @@ const ProductCatalog = () => {
 
                 {/* Results count */}
                 <div className="results-info">
-                    Hiển thị <strong>{filteredProducts.length}</strong> sản phẩm
+                    Hiển thị <strong>{filteredProducts.length}</strong> sản phẩm trên tổng số <strong>{pagination.totalProducts}</strong> sản phẩm
                     {searchTerm && ` khớp với "${searchTerm}"`}
+                    {selectedParentCategory !== 'all' && ` trong danh mục "${selectedParentCategory}"`}
                 </div>
 
                 {/* Product Grid */}
@@ -298,13 +328,16 @@ const ProductCatalog = () => {
                     <div className="no-results card">
                         <div className="no-results-icon">📦</div>
                         <h3>Không tìm thấy sản phẩm</h3>
-                        <p>Vui lòng thử tìm kiếm với từ khóa khác hoặc chọn danh mục khác</p>
+                        <p>
+                            {searchTerm 
+                                ? 'Vui lòng thử tìm kiếm với từ khóa khác' 
+                                : 'Không có sản phẩm nào trong danh mục này'
+                            }
+                        </p>
                     </div>
                 ) : (
                     <div className="product-grid">
-                        {filteredProducts
-                            .slice((currentPage - 1) * productsPerPage, currentPage * productsPerPage)
-                            .map(product => (
+                        {filteredProducts.map(product => (
                             <div 
                                 key={product.code} 
                                 className="product-card card"
@@ -338,40 +371,41 @@ const ProductCatalog = () => {
                 )}
 
                 {/* Pagination */}
-                {filteredProducts.length > productsPerPage && (
+                {pagination.totalPages > 1 && (
                     <div className="pagination-container">
                         <div className="pagination">
                             <button 
                                 className="pagination-btn" 
                                 onClick={() => setCurrentPage(1)} 
-                                disabled={currentPage === 1}
+                                disabled={!pagination.hasPrevPage}
                             >
                                 &laquo;
                             </button>
                             <button 
                                 className="pagination-btn" 
-                                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
-                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)} 
+                                disabled={!pagination.hasPrevPage}
                             >
                                 &lsaquo;
                             </button>
 
                             <div className="pagination-info">
-                                Trang <span className="current-page">{currentPage}</span> / 
-                                <span className="total-pages">{Math.ceil(filteredProducts.length / productsPerPage)}</span>
+                                Trang <span className="current-page">{pagination.currentPage}</span> / 
+                                <span className="total-pages">{pagination.totalPages}</span>
+                                <span className="pagination-total">({pagination.totalProducts} sản phẩm)</span>
                             </div>
 
                             <button 
                                 className="pagination-btn" 
-                                onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(filteredProducts.length / productsPerPage)))} 
-                                disabled={currentPage === Math.ceil(filteredProducts.length / productsPerPage)}
+                                onClick={() => setCurrentPage(prev => prev + 1)} 
+                                disabled={!pagination.hasNextPage}
                             >
                                 &rsaquo;
                             </button>
                             <button 
                                 className="pagination-btn" 
-                                onClick={() => setCurrentPage(Math.ceil(filteredProducts.length / productsPerPage))} 
-                                disabled={currentPage === Math.ceil(filteredProducts.length / productsPerPage)}
+                                onClick={() => setCurrentPage(pagination.totalPages)} 
+                                disabled={!pagination.hasNextPage}
                             >
                                 &raquo;
                             </button>

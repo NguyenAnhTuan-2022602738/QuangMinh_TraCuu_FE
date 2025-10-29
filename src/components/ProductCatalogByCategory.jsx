@@ -13,6 +13,16 @@ const ProductCatalogByCategory = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [productsPerPage, setProductsPerPage] = useState(12);
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalProducts: 0,
+        productsPerPage: 12,
+        hasNextPage: false,
+        hasPrevPage: false
+    });
 
     const fetchSubcategories = async () => {
         try {
@@ -29,19 +39,38 @@ const ProductCatalogByCategory = () => {
         }
     };
 
-    const fetchProducts = async () => {
+    const fetchProducts = async (page = 1) => {
         try {
             setLoading(true);
-            const url = `${API_URL}/products/categories/${encodeURIComponent(parentCategory)}/products${
-                selectedSubcategory !== 'all' ? `?subcategory=${encodeURIComponent(selectedSubcategory)}` : ''
-            }`;
+            let url = `${API_URL}/products/categories/${encodeURIComponent(parentCategory)}/products?page=${page}&limit=${productsPerPage}`;
+            
+            if (selectedSubcategory !== 'all') {
+                url += `&subcategory=${encodeURIComponent(selectedSubcategory)}`;
+            }
             
             const response = await fetch(url);
             
             if (!response.ok) throw new Error('Không thể tải sản phẩm');
             
             const data = await response.json();
-            setProducts(data);
+            
+            // Handle both paginated and non-paginated responses for backward compatibility
+            if (data.pagination) {
+                setProducts(data.products || []);
+                setPagination(data.pagination);
+            } else {
+                // Fallback for non-paginated response
+                setProducts(data || []);
+                setPagination({
+                    currentPage: 1,
+                    totalPages: 1,
+                    totalProducts: (data || []).length,
+                    productsPerPage: productsPerPage,
+                    hasNextPage: false,
+                    hasPrevPage: false
+                });
+            }
+            
             setError('');
         } catch (err) {
             console.error('Error fetching products:', err);
@@ -62,14 +91,14 @@ const ProductCatalogByCategory = () => {
 
     useEffect(() => {
         fetchSubcategories();
-        fetchProducts();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+        setSelectedSubcategory('all');
+        setCurrentPage(1); // Reset to first page when category changes
     }, [parentCategory]);
 
     useEffect(() => {
-        fetchProducts();
+        fetchProducts(currentPage);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedSubcategory]);
+    }, [selectedSubcategory, currentPage, productsPerPage]);
 
     const goBack = () => {
         history.push('/categories');
@@ -84,7 +113,10 @@ const ProductCatalogByCategory = () => {
                 </button>
                 <div className="header-info">
                     <h1>📦 {decodeURIComponent(parentCategory)}</h1>
-                    <p className="product-count">{filteredProducts.length} sản phẩm</p>
+                    <p className="product-count">
+                        Hiển thị {filteredProducts.length} sản phẩm trên tổng số {pagination.totalProducts} sản phẩm
+                        {selectedSubcategory !== 'all' && ` trong danh mục "${selectedSubcategory}"`}
+                    </p>
                 </div>
             </div>
 
@@ -139,26 +171,71 @@ const ProductCatalogByCategory = () => {
 
             {/* Products Grid */}
             {!loading && !error && filteredProducts.length > 0 && (
-                <div className="products-grid">
-                    {filteredProducts.map((product) => (
-                        <div key={product._id} className="product-card">
-                            <div className="product-header">
-                                <span className="product-code">{product.code}</span>
-                                <span className="subcategory-badge">{product.subcategory}</span>
+                <>
+                    <div className="products-grid">
+                        {filteredProducts.map((product) => (
+                            <div key={product._id} className="product-card">
+                                <div className="product-header">
+                                    <span className="product-code">{product.code}</span>
+                                    <span className="subcategory-badge">{product.subcategory}</span>
+                                </div>
+                                <h3 className="product-name">{product.name}</h3>
+                                <div className="product-meta">
+                                    <span className="product-unit">📏 {product.unit}</span>
+                                </div>
+                                <button 
+                                    className="view-details-btn"
+                                    onClick={() => history.push(`/product/${product.code}`)}
+                                >
+                                    Xem chi tiết →
+                                </button>
                             </div>
-                            <h3 className="product-name">{product.name}</h3>
-                            <div className="product-meta">
-                                <span className="product-unit">📏 {product.unit}</span>
+                        ))}
+                    </div>
+
+                    {/* Pagination */}
+                    {pagination.totalPages > 1 && (
+                        <div className="pagination-container">
+                            <div className="pagination">
+                                <button 
+                                    className="pagination-btn" 
+                                    onClick={() => setCurrentPage(1)} 
+                                    disabled={!pagination.hasPrevPage}
+                                >
+                                    &laquo;
+                                </button>
+                                <button 
+                                    className="pagination-btn" 
+                                    onClick={() => setCurrentPage(prev => prev - 1)} 
+                                    disabled={!pagination.hasPrevPage}
+                                >
+                                    &lsaquo;
+                                </button>
+
+                                <div className="pagination-info">
+                                    Trang <span className="current-page">{pagination.currentPage}</span> / 
+                                    <span className="total-pages">{pagination.totalPages}</span>
+                                    <span className="pagination-total">({pagination.totalProducts} sản phẩm)</span>
+                                </div>
+
+                                <button 
+                                    className="pagination-btn" 
+                                    onClick={() => setCurrentPage(prev => prev + 1)} 
+                                    disabled={!pagination.hasNextPage}
+                                >
+                                    &rsaquo;
+                                </button>
+                                <button 
+                                    className="pagination-btn" 
+                                    onClick={() => setCurrentPage(pagination.totalPages)} 
+                                    disabled={!pagination.hasNextPage}
+                                >
+                                    &raquo;
+                                </button>
                             </div>
-                            <button 
-                                className="view-details-btn"
-                                onClick={() => history.push(`/product/${product.code}`)}
-                            >
-                                Xem chi tiết →
-                            </button>
                         </div>
-                    ))}
-                </div>
+                    )}
+                </>
             )}
 
             {/* Empty State */}
