@@ -288,9 +288,38 @@
         gap: 0.5rem;
     }
 
-    .filter-chip {
-        font-size: 0.85rem;
-        padding: 0.5rem 1rem;
+    .per-page-filter {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .per-page-filter label {
+        font-size: 0.9rem;
+        color: #666;
+        font-weight: 500;
+    }
+
+    .per-page-select {
+        padding: 0.5rem 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        background: white;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .per-page-select:hover {
+        border-color: #667eea;
+    }
+
+    .per-page-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
 }
 

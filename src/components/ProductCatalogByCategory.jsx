@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import './ProductCatalogByCategory.css';
 
@@ -24,7 +24,7 @@ const ProductCatalogByCategory = () => {
         hasPrevPage: false
     });
 
-    const fetchSubcategories = async () => {
+    const fetchSubcategories = useCallback(async () => {
         try {
             const response = await fetch(
                 `${API_URL}/products/categories/${encodeURIComponent(parentCategory)}/subcategories`
@@ -37,7 +37,7 @@ const ProductCatalogByCategory = () => {
         } catch (err) {
             console.error('Error fetching subcategories:', err);
         }
-    };
+    }, [parentCategory]);
 
     const fetchProducts = async (page = 1) => {
         try {
@@ -94,7 +94,7 @@ const ProductCatalogByCategory = () => {
         fetchSubcategories();
         setSelectedSubcategory('all');
         setCurrentPage(1); // Reset to first page when category changes
-    }, [parentCategory]);
+    }, [fetchSubcategories]);
 
     useEffect(() => {
         fetchProducts(currentPage);
@@ -103,6 +103,11 @@ const ProductCatalogByCategory = () => {
 
     const goBack = () => {
         history.push('/categories');
+    };
+
+    const handleProductsPerPageChange = (newLimit) => {
+        setProductsPerPage(newLimit);
+        setCurrentPage(1); // Reset to first page when changing page size
     };
 
     return (
@@ -148,6 +153,20 @@ const ProductCatalogByCategory = () => {
                             {sub}
                         </button>
                     ))}
+                </div>
+
+                <div className="per-page-filter">
+                    <label>Hiển thị:</label>
+                    <select
+                        value={productsPerPage}
+                        onChange={(e) => handleProductsPerPageChange(Number(e.target.value))}
+                        className="per-page-select"
+                    >
+                        <option value={12}>12 sản phẩm</option>
+                        <option value={24}>24 sản phẩm</option>
+                        <option value={48}>48 sản phẩm</option>
+                        <option value={96}>96 sản phẩm</option>
+                    </select>
                 </div>
             </div>
 
