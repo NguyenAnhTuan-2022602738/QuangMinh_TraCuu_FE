@@ -9,6 +9,8 @@ const CategorySelection = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isExpanded, setIsExpanded] = useState(false);
 
     useEffect(() => {
         fetchCategories();
@@ -38,6 +40,11 @@ const CategorySelection = () => {
         // Navigate to product catalog with parent category filter
         history.push(`/catalog/${encodeURIComponent(categoryName)}`);
     };
+
+    // Lọc danh mục theo từ khóa tìm kiếm
+    const filteredCategories = categories.filter(category =>
+        category.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     if (loading) {
         return (
@@ -71,8 +78,31 @@ const CategorySelection = () => {
                 <p className="subtitle">Vui lòng chọn danh mục để xem sản phẩm</p>
             </div>
 
-            <div className="categories-grid">
-                {categories.map((category, index) => (
+            {/* Tìm kiếm danh mục - Mobile */}
+            <div className="category-search-mobile">
+                <input
+                    type="text"
+                    placeholder="🔍 Tìm danh mục..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="search-input-mobile"
+                />
+            </div>
+
+            {/* Toggle button cho mobile */}
+            <button 
+                className="toggle-categories-btn"
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <span className="toggle-icon">{isExpanded ? '▼' : '▶'}</span>
+                <span className="toggle-text">
+                    {isExpanded ? 'Thu gọn danh mục' : `Xem danh mục (${filteredCategories.length})`}
+                </span>
+            </button>
+
+            {/* Desktop: Luôn hiện, Mobile: Theo isExpanded */}
+            <div className={`categories-grid ${isExpanded ? 'expanded' : ''}`}>
+                {filteredCategories.map((category, index) => (
                     <div
                         key={index}
                         className="category-card"
@@ -88,10 +118,10 @@ const CategorySelection = () => {
                 ))}
             </div>
 
-            {categories.length === 0 && (
+            {filteredCategories.length === 0 && !loading && (
                 <div className="empty-state">
                     <span className="empty-icon">📭</span>
-                    <p>Chưa có danh mục nào</p>
+                    <p>Không tìm thấy danh mục phù hợp</p>
                 </div>
             )}
         </div>
