@@ -26,6 +26,10 @@
 .sidebar-header {
     padding: 1.5rem;
     border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
 }
 
 .sidebar-header h3 {
@@ -35,10 +39,73 @@
     font-weight: 700;
 }
 
+.sidebar-toggle-btn {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.9rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebar-toggle-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(102, 126, 234, 0.25);
+}
+
+.sidebar-toggle-icon {
+    display: inline-flex;
+    font-size: 0.8rem;
+}
+
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-search {
+    padding: 1rem 1.5rem 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.sidebar-search-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.sidebar-search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.sidebar-empty {
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: #f5f7ff;
+    color: #6068a0;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
 .sidebar-nav {
-    padding: 1rem;
+    padding: 1rem 1.5rem 1.5rem;
     overflow-y: auto;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 /* Custom scrollbar for sidebar */
@@ -735,22 +802,42 @@
         margin-bottom: 1rem;
     }
     
+    .sidebar-toggle-btn {
+        display: inline-flex;
+        font-size: 0.8rem;
+        padding: 0.55rem 0.75rem;
+    }
+
+    .sidebar-search {
+        padding: 0.65rem 0.75rem 0.4rem;
+    }
+
+    .sidebar-search-input {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.9rem;
+    }
+
     .sidebar-nav {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 0.5rem;
-        padding: 0.75rem;
+        padding: 0.5rem 0.75rem 0.75rem;
+        gap: 0.45rem;
     }
-    
+
     .sidebar-item {
-        padding: 0.75rem;
-        font-size: 0.875rem;
-        flex-direction: column;
-        text-align: center;
+        padding: 0.7rem 0.75rem;
+        font-size: 0.85rem;
     }
-    
+
     .sidebar-icon {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
+    }
+
+    .sidebar-count {
+        font-size: 0.75rem;
+    }
+
+    .sidebar-empty {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.75rem;
     }
     
     .results-info {

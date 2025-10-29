@@ -15,6 +15,13 @@ const ProductCatalog = () => {
     const [selectedParentCategory, setSelectedParentCategory] = useState('all');
     const [selectedSubcategory, setSelectedSubcategory] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
+    const [categorySearch, setCategorySearch] = useState('');
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return window.innerWidth > 768;
+        }
+        return true;
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -40,6 +47,22 @@ const ProductCatalog = () => {
             setSelectedParentCategory(parentCat);
         }
     }, [location.search]);
+
+    // Ensure sidebar visibility aligns with viewport size
+    useEffect(() => {
+        const handleResize = () => {
+            if (typeof window === 'undefined') return;
+            if (window.innerWidth > 768) {
+                setIsMobileSidebarOpen(true);
+            } else {
+                setIsMobileSidebarOpen(false);
+            }
+        };
+
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // Fetch parent categories
     const fetchParentCategories = useCallback(async () => {
@@ -162,6 +185,10 @@ const ProductCatalog = () => {
     const handleParentCategorySelect = (parentCat) => {
         setSelectedParentCategory(parentCat);
         setCurrentPage(1);
+        setCategorySearch('');
+        if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+            setIsMobileSidebarOpen(false);
+        }
         
         // Update URL
         const params = new URLSearchParams(location.search);
@@ -185,6 +212,10 @@ const ProductCatalog = () => {
                             (product.code && String(product.code).toLowerCase().includes(searchTerm.toLowerCase()));
         return matchesSearch;
     });
+
+    const filteredParentCategories = (parentCategories || [])
+        .filter((category) => Boolean(category))
+        .filter((category) => category.toLowerCase().includes(categorySearch.toLowerCase()));
 
     const formatPrice = (price) => {
         if (price == null || price === 0) return 'Đang cập nhật';
@@ -218,30 +249,64 @@ const ProductCatalog = () => {
         <>
             <div className="product-catalog-with-sidebar">
             {/* Sidebar */}
-            <aside className="catalog-sidebar">
+            <aside className={`catalog-sidebar ${isMobileSidebarOpen ? 'open' : 'collapsed'}`}>
                 <div className="sidebar-header">
                     <h3>📂 Danh mục cha</h3>
-                </div>
-                <nav className="sidebar-nav">
                     <button
-                        className={`sidebar-item ${selectedParentCategory === 'all' ? 'active' : ''}`}
-                        onClick={() => handleParentCategorySelect('all')}
+                        type="button"
+                        className="sidebar-toggle-btn"
+                        onClick={() => setIsMobileSidebarOpen((prev) => !prev)}
+                        aria-expanded={isMobileSidebarOpen}
+                        aria-controls="parent-category-sidebar"
                     >
-                        <span className="sidebar-icon">📦</span>
-                        <span className="sidebar-label">Tất cả sản phẩm</span>
-                        <span className="sidebar-count">{pagination.totalProducts}</span>
+                        <span className="sidebar-toggle-text">
+                            {isMobileSidebarOpen ? 'Thu gọn' : 'Chọn danh mục'}
+                        </span>
+                        <span className="sidebar-toggle-icon">
+                            {isMobileSidebarOpen ? '▲' : '▼'}
+                        </span>
                     </button>
-                    {parentCategories.map((cat, index) => (
+                </div>
+                <div
+                    id="parent-category-sidebar"
+                    className={`sidebar-content ${isMobileSidebarOpen ? 'expanded' : ''}`}
+                >
+                    <div className="sidebar-search">
+                        <input
+                            type="text"
+                            placeholder="🔍 Tìm danh mục..."
+                            value={categorySearch}
+                            onChange={(e) => setCategorySearch(e.target.value)}
+                            className="sidebar-search-input"
+                        />
+                    </div>
+                    <nav className="sidebar-nav">
                         <button
-                            key={index}
-                            className={`sidebar-item ${selectedParentCategory === cat ? 'active' : ''}`}
-                            onClick={() => handleParentCategorySelect(cat)}
+                            className={`sidebar-item ${selectedParentCategory === 'all' ? 'active' : ''}`}
+                            onClick={() => handleParentCategorySelect('all')}
                         >
-                            <span className="sidebar-icon">📁</span>
-                            <span className="sidebar-label">{cat}</span>
+                            <span className="sidebar-icon">📦</span>
+                            <span className="sidebar-label">Tất cả sản phẩm</span>
+                            <span className="sidebar-count">{pagination.totalProducts}</span>
                         </button>
-                    ))}
-                </nav>
+                        {filteredParentCategories.length > 0 ? (
+                            filteredParentCategories.map((cat) => (
+                                <button
+                                    key={cat}
+                                    className={`sidebar-item ${selectedParentCategory === cat ? 'active' : ''}`}
+                                    onClick={() => handleParentCategorySelect(cat)}
+                                >
+                                    <span className="sidebar-icon">📁</span>
+                                    <span className="sidebar-label">{cat}</span>
+                                </button>
+                            ))
+                        ) : (
+                            categorySearch ? (
+                                <div className="sidebar-empty">Không tìm thấy danh mục phù hợp</div>
+                            ) : null
+                        )}
+                    </nav>
+                </div>
             </aside>
 
             {/* Main Content */}
