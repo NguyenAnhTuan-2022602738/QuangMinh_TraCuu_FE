@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import * as XLSX from 'xlsx';
 import './AdminPanel.css';
@@ -19,6 +19,15 @@ const AdminPanel = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const history = useHistory();
     const location = useLocation();
+    const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        // Track mount state to avoid setting state after unmount
+        isMountedRef.current = true;
+        return () => {
+            isMountedRef.current = false;
+        };
+    }, []);
 
     // Get active view from URL path
     const getActiveView = () => {
@@ -78,15 +87,31 @@ const AdminPanel = () => {
 
     const fetchProducts = async () => {
         try {
+            if (!isMountedRef.current) return;
             setLoading(true);
-            const response = await fetch(`${API_URL}/products`);
+            const response = await fetch(`${API_URL}/products?limit=all`);
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
             const data = await response.json();
-            setProducts(data);
+            if (!isMountedRef.current) return;
+
+            const normalizedProducts = Array.isArray(data)
+                ? data
+                : Array.isArray(data?.products)
+                    ? data.products
+                    : [];
+
+            setProducts(normalizedProducts);
             setError('');
         } catch (err) {
+            if (!isMountedRef.current) return;
+            console.error('Error fetching admin products:', err);
             setError('Lỗi tải dữ liệu sản phẩm');
         } finally {
-            setLoading(false);
+            if (isMountedRef.current) {
+                setLoading(false);
+            }
         }
     };
 
@@ -328,7 +353,7 @@ const AdminPanel = () => {
         XLSX.writeFile(wb, 'mau-import-san-pham.xlsx');
     };
 
-    const filteredProducts = products.filter(p => 
+    const filteredProducts = (Array.isArray(products) ? products : []).filter(p => 
         String(p.code).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(p.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(p.category).toLowerCase().includes(searchTerm.toLowerCase())

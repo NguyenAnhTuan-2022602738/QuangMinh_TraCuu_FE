@@ -116,13 +116,28 @@ const AdminUserManagement = ({ onBack }) => {
             });
             
             const data = await resp.json();
-            
+
+            if (resp.status === 409) {
+                const conflictFieldMap = {
+                    username: 'Số điện thoại',
+                    phone: 'Số điện thoại',
+                    email: 'Email (dữ liệu cũ)'
+                };
+                const conflictField = conflictFieldMap[data.field] || 'Tài khoản';
+                const conflictMessage = data.message || `${conflictField} đã tồn tại. Vui lòng kiểm tra lại.`;
+                alert(`⚠️ ${conflictMessage}`);
+                console.warn('⚠️ Duplicate customer detected:', data);
+                return;
+            }
+
             if (resp.ok) {
                 console.log('✅ Operation successful:', data);
                 
                 // Show success message with password if creating new user
                 if (!editing && data.password) {
-                    alert(`✅ Tạo tài khoản thành công!\n\n👤 Tên: ${data.customer?.name}\n📱 SĐT: ${data.customer?.username}\n🔑 Mật khẩu: ${data.password}\n\n⚠️ Lưu mật khẩu này!`);
+                    const createdName = data.customer?.name || name.trim();
+                    const createdUsername = data.customer?.username || phone.trim();
+                    alert(`✅ Tạo tài khoản thành công!\n\n👤 Tên: ${createdName}\n📱 SĐT: ${createdUsername}\n🔑 Mật khẩu: ${data.password}\n\n⚠️ Lưu mật khẩu này!`);
                 } else {
                     alert('✅ Cập nhật tài khoản thành công!');
                 }
