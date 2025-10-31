@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCustomer } from '../context/CustomerContext';
 import axios from 'axios';
 import './ProductSearch.css';
@@ -12,6 +12,20 @@ const ProductSearch = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [hasSearched, setHasSearched] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [showModal, setShowModal] = useState(false);
+
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showModal]);
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -24,10 +38,16 @@ const ProductSearch = () => {
             setLoading(true);
             setError('');
             setHasSearched(true);
+            setShowModal(false);
+            setSelectedProduct(null);
             
             // Fetch all products with current price type
-            const response = await axios.get(`${API_URL}/products/${customerType}`);
-            const allProducts = response.data;
+            const response = await axios.get(`${API_URL}/products/${customerType}?limit=all`);
+            const allProducts = Array.isArray(response.data)
+                ? response.data
+                : Array.isArray(response.data?.products)
+                    ? response.data.products
+                    : [];
             
             // Filter by search term
             const filtered = allProducts.filter(p => 
@@ -44,6 +64,17 @@ const ProductSearch = () => {
         }
     };
 
+    const handleResultClick = (product) => {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
+        setSelectedProduct({ ...product, scrollTop });
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setTimeout(() => setSelectedProduct(null), 200);
+    };
+
     const formatPrice = (price) => {
         if (price == null) return 'Liên hệ';
         return new Intl.NumberFormat('vi-VN', {
@@ -53,6 +84,7 @@ const ProductSearch = () => {
     };
 
     return (
+        <>
         <div className="product-search">
             <div className="container">
                 <div className="search-header">
@@ -106,10 +138,22 @@ const ProductSearch = () => {
                         ) : (
                             <div className="results-grid">
                                 {searchResults.map(product => (
-                                    <div key={product.code} className="result-card card">
+                                    <div 
+                                        key={product.code}
+                                        className="result-card card"
+                                        onClick={() => handleResultClick(product)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                handleResultClick(product);
+                                            }
+                                        }}
+                                    >
                                         <div className="result-header">
                                             <span className="result-code">{product.code}</span>
-                                            <span className="result-category">{product.category}</span>
+                                            <span className="result-category">{product.parentCategory || product.category}</span>
                                         </div>
                                         <h3 className="result-name">{product.name}</h3>
                                         <div className="result-footer">
@@ -141,6 +185,90 @@ const ProductSearch = () => {
                 )}
             </div>
         </div>
+        {showModal && selectedProduct && (
+                <div 
+                    className="modal-overlay" 
+                    onClick={handleCloseModal}
+                    style={{ top: `${selectedProduct.scrollTop || 0}px` }}
+                >
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={handleCloseModal}>
+                            ✕
+                        </button>
+
+                        {selectedProduct.image && (
+                            <div className="modal-image-container">
+                                <img
+                                    src={selectedProduct.image}
+                                    alt={selectedProduct.name}
+                                    className="modal-product-image"
+                                    onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        e.target.parentElement.style.display = 'none';
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        <div className="modal-header">
+                            <div className="modal-code-badge">{selectedProduct.code}</div>
+                            {selectedProduct.parentCategory && (
+                                <div className="modal-parent-category">
+                                    📁 {selectedProduct.parentCategory}
+                                </div>
+                            )}
+                            {selectedProduct.subcategory && (
+                                <div className="modal-subcategory">
+                                    {selectedProduct.subcategory}
+                                </div>
+                            )}
+                        </div>
+
+                        <h2 className="modal-title">{selectedProduct.name}</h2>
+
+                        <div className="modal-details">
+                            <div className="modal-detail-row">
+                                <span className="detail-label">📦 Mã sản phẩm:</span>
+                                <span className="detail-value">{selectedProduct.code}</span>
+                            </div>
+
+                            {selectedProduct.parentCategory && (
+                                <div className="modal-detail-row">
+                                    <span className="detail-label">📁 Danh mục cha:</span>
+                                    <span className="detail-value">{selectedProduct.parentCategory}</span>
+                                </div>
+                            )}
+
+                            {selectedProduct.subcategory && (
+                                <div className="modal-detail-row">
+                                    <span className="detail-label">🏷️ Danh mục con:</span>
+                                    <span className="detail-value">{selectedProduct.subcategory}</span>
+                                </div>
+                            )}
+
+                            {selectedProduct.category && (
+                                <div className="modal-detail-row">
+                                    <span className="detail-label">📂 Danh mục:</span>
+                                    <span className="detail-value">{selectedProduct.category}</span>
+                                </div>
+                            )}
+
+                            <div className="modal-detail-row">
+                                <span className="detail-label">📏 Đơn vị:</span>
+                                <span className="detail-value">{selectedProduct.unit}</span>
+                            </div>
+                        </div>
+
+                        <div className="modal-price-section">
+                            <div className="modal-price-label">Giá bán</div>
+                            <div className="modal-price-value">
+                                {formatPrice(selectedProduct.price)}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 

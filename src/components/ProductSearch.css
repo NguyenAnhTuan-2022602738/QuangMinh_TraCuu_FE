@@ -121,6 +121,7 @@
     padding: 1.5rem;
     transition: all 0.3s ease;
     border-left: 4px solid transparent;
+    cursor: pointer;
 }
 
 .result-card:hover {
