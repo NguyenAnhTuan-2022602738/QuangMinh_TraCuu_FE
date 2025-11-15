@@ -15,6 +15,7 @@ const ProductCatalogByCategory = () => {
     const [error, setError] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage, setProductsPerPage] = useState(12);
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
     const [pagination, setPagination] = useState({
         currentPage: 1,
         totalPages: 1,
@@ -93,7 +94,7 @@ const ProductCatalogByCategory = () => {
     useEffect(() => {
         fetchSubcategories();
         setSelectedSubcategory('all');
-        setCurrentPage(1); // Reset to first page when category changes
+        setCurrentPage(1);
     }, [fetchSubcategories]);
 
     useEffect(() => {
@@ -107,89 +108,158 @@ const ProductCatalogByCategory = () => {
 
     const handleProductsPerPageChange = (newLimit) => {
         setProductsPerPage(newLimit);
-        setCurrentPage(1); // Reset to first page when changing page size
+        setCurrentPage(1);
+    };
+
+    const getCategoryIcon = (category) => {
+        const icons = {
+            'default': '📦',
+            'electronics': '💻',
+            'food': '🍕',
+            'clothing': '👕',
+            'books': '📚',
+            'tools': '🔧',
+            'sports': '⚽',
+            'beauty': '💄'
+        };
+        return icons[category.toLowerCase()] || icons.default;
     };
 
     return (
         <div className="catalog-by-category-container">
+            {/* Animated Background */}
+            <div className="category-background">
+                <div className="bg-shape bg-shape-1"></div>
+                <div className="bg-shape bg-shape-2"></div>
+                <div className="bg-shape bg-shape-3"></div>
+            </div>
+
             {/* Header */}
             <div className="catalog-header">
                 <button onClick={goBack} className="back-btn">
-                    ← Quay lại
+                    <span className="back-icon">←</span>
+                    <span>Quay lại</span>
                 </button>
-                <div className="header-info">
-                    <h1>📦 {decodeURIComponent(parentCategory)}</h1>
-                    <p className="product-count">
-                        Hiển thị {filteredProducts.length} sản phẩm trên tổng số {pagination.totalProducts} sản phẩm
-                        {selectedSubcategory !== 'all' && ` trong danh mục "${selectedSubcategory}"`}
+                <div className="header-content">
+                    <div className="header-badge">
+                        <span className="badge-icon">{getCategoryIcon(parentCategory)}</span>
+                        <span>Danh mục</span>
+                    </div>
+                    <h1 className="header-title">{decodeURIComponent(parentCategory)}</h1>
+                    <p className="header-subtitle">
+                        <span className="count-highlight">{filteredProducts.length}</span> sản phẩm 
+                        {selectedSubcategory !== 'all' && (
+                            <span> trong <strong>"{selectedSubcategory}"</strong></span>
+                        )}
                     </p>
                 </div>
             </div>
 
             {/* Filters */}
             <div className="catalog-filters">
-                <div className="search-box">
-                    <input
-                        type="text"
-                        placeholder="🔍 Tìm kiếm theo mã, tên sản phẩm..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                </div>
+                {/* Search Box */}
+                <div className="filter-row">
+                    <div className="search-box">
+                        <span className="search-icon">🔍</span>
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm theo mã, tên sản phẩm..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                        {searchTerm && (
+                            <button 
+                                className="clear-search"
+                                onClick={() => setSearchTerm('')}
+                                aria-label="Clear search"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
 
-                {/* Desktop: Filter chips */}
-                <div className="subcategory-filters desktop-filters">
-                    <button
-                        className={`filter-chip ${selectedSubcategory === 'all' ? 'active' : ''}`}
-                        onClick={() => setSelectedSubcategory('all')}
-                    >
-                        Tất cả
-                    </button>
-                    {subcategories.map((sub, index) => (
+                    {/* View Mode Toggle */}
+                    <div className="view-mode-toggle">
                         <button
-                            key={index}
-                            className={`filter-chip ${selectedSubcategory === sub ? 'active' : ''}`}
-                            onClick={() => setSelectedSubcategory(sub)}
+                            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                            onClick={() => setViewMode('grid')}
+                            title="Grid view"
                         >
-                            {sub}
+                            <span className="view-icon">⊞</span>
                         </button>
-                    ))}
+                        <button
+                            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                            onClick={() => setViewMode('list')}
+                            title="List view"
+                        >
+                            <span className="view-icon">☰</span>
+                        </button>
+                    </div>
                 </div>
 
-                {/* Mobile: Dropdown select */}
-                <div className="subcategory-select-mobile">
-                    <label>Danh mục:</label>
-                    <select
-                        value={selectedSubcategory}
-                        onChange={(e) => setSelectedSubcategory(e.target.value)}
-                        className="category-select"
-                    >
-                        <option value="all">Tất cả danh mục</option>
-                        {subcategories.map((sub, index) => (
-                            <option key={index} value={sub}>{sub}</option>
-                        ))}
-                    </select>
-                </div>
+                {/* Subcategory Filters */}
+                {subcategories.length > 0 && (
+                    <div className="filter-row">
+                        <div className="subcategory-filters">
+                            <button
+                                className={`filter-chip ${selectedSubcategory === 'all' ? 'active' : ''}`}
+                                onClick={() => setSelectedSubcategory('all')}
+                            >
+                                <span className="chip-icon">📦</span>
+                                <span>Tất cả</span>
+                            </button>
+                            {subcategories.map((sub, index) => (
+                                <button
+                                    key={index}
+                                    className={`filter-chip ${selectedSubcategory === sub ? 'active' : ''}`}
+                                    onClick={() => setSelectedSubcategory(sub)}
+                                >
+                                    <span className="chip-icon">🏷️</span>
+                                    <span>{sub}</span>
+                                </button>
+                            ))}
+                        </div>
 
-                <div className="per-page-filter">
-                    <label>Hiển thị:</label>
-                    <select
-                        value={productsPerPage}
-                        onChange={(e) => handleProductsPerPageChange(Number(e.target.value))}
-                        className="per-page-select"
-                    >
-                        <option value={12}>12 sản phẩm</option>
-                        <option value={24}>24 sản phẩm</option>
-                        <option value={48}>48 sản phẩm</option>
-                        <option value={96}>96 sản phẩm</option>
-                    </select>
-                </div>
+                        {/* Products Per Page */}
+                        <div className="per-page-filter">
+                            <label>Hiển thị:</label>
+                            <select
+                                value={productsPerPage}
+                                onChange={(e) => handleProductsPerPageChange(Number(e.target.value))}
+                                className="per-page-select"
+                            >
+                                <option value={12}>12</option>
+                                <option value={24}>24</option>
+                                <option value={48}>48</option>
+                                <option value={96}>96</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+
+                {/* Mobile Subcategory Dropdown */}
+                {subcategories.length > 0 && (
+                    <div className="subcategory-mobile">
+                        <label>Danh mục:</label>
+                        <select
+                            value={selectedSubcategory}
+                            onChange={(e) => setSelectedSubcategory(e.target.value)}
+                            className="category-select"
+                        >
+                            <option value="all">Tất cả danh mục</option>
+                            {subcategories.map((sub, index) => (
+                                <option key={index} value={sub}>{sub}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
             </div>
 
             {/* Loading State */}
             {loading && (
                 <div className="loading-state">
-                    <div className="spinner"></div>
+                    <div className="loading-spinner"></div>
                     <p>Đang tải sản phẩm...</p>
                 </div>
             )}
@@ -198,75 +268,91 @@ const ProductCatalogByCategory = () => {
             {error && !loading && (
                 <div className="error-state">
                     <span className="error-icon">⚠️</span>
+                    <h3>Có lỗi xảy ra</h3>
                     <p>{error}</p>
-                    <button onClick={fetchProducts} className="retry-btn">
+                    <button onClick={() => fetchProducts(currentPage)} className="retry-btn">
                         Thử lại
                     </button>
                 </div>
             )}
 
-            {/* Products Grid */}
+            {/* Products Grid/List */}
             {!loading && !error && filteredProducts.length > 0 && (
                 <>
-                    <div className="products-grid">
+                    <div className={`products-container ${viewMode === 'list' ? 'list-view' : 'grid-view'}`}>
                         {filteredProducts.map((product) => (
-                            <div key={product._id} className="product-card">
-                                <div className="product-header">
-                                    <span className="product-code">{product.code}</span>
-                                    <span className="subcategory-badge">{product.subcategory}</span>
+                            <div 
+                                key={product._id} 
+                                className="product-card"
+                                onClick={() => history.push(`/product/${product.code}`)}
+                            >
+                                <div className="product-image-placeholder">
+                                    <span className="placeholder-icon">📦</span>
                                 </div>
-                                <h3 className="product-name">{product.name}</h3>
-                                <div className="product-meta">
-                                    <span className="product-unit">📏 {product.unit}</span>
+                                <div className="product-content">
+                                    <div className="product-header">
+                                        <span className="product-code">{product.code}</span>
+                                        <span className="subcategory-badge">{product.subcategory}</span>
+                                    </div>
+                                    <h3 className="product-name">{product.name}</h3>
+                                    <div className="product-meta">
+                                        <span className="product-unit">
+                                            <span className="meta-icon">📏</span>
+                                            {product.unit}
+                                        </span>
+                                    </div>
+                                    <button className="view-details-btn">
+                                        <span>Xem chi tiết</span>
+                                        <span className="btn-arrow">→</span>
+                                    </button>
                                 </div>
-                                <button 
-                                    className="view-details-btn"
-                                    onClick={() => history.push(`/product/${product.code}`)}
-                                >
-                                    Xem chi tiết →
-                                </button>
                             </div>
                         ))}
                     </div>
 
                     {/* Pagination */}
                     {pagination.totalPages > 1 && (
-                        <div className="pagination-container">
+                        <div className="pagination-wrapper">
                             <div className="pagination">
                                 <button 
-                                    className="pagination-btn" 
+                                    className="pagination-btn pagination-first" 
                                     onClick={() => setCurrentPage(1)} 
                                     disabled={!pagination.hasPrevPage}
+                                    title="First page"
                                 >
-                                    &laquo;
+                                    <span>«</span>
                                 </button>
                                 <button 
-                                    className="pagination-btn" 
+                                    className="pagination-btn pagination-prev" 
                                     onClick={() => setCurrentPage(prev => prev - 1)} 
                                     disabled={!pagination.hasPrevPage}
+                                    title="Previous page"
                                 >
-                                    &lsaquo;
+                                    <span>‹</span>
                                 </button>
 
                                 <div className="pagination-info">
-                                    Trang <span className="current-page">{pagination.currentPage}</span> / 
-                                    <span className="total-pages">{pagination.totalPages}</span>
-                                    <span className="pagination-total">({pagination.totalProducts} sản phẩm)</span>
+                                    <span className="page-current">{pagination.currentPage}</span>
+                                    <span className="page-separator">/</span>
+                                    <span className="page-total">{pagination.totalPages}</span>
+                                    <span className="products-total">({pagination.totalProducts} sản phẩm)</span>
                                 </div>
 
                                 <button 
-                                    className="pagination-btn" 
+                                    className="pagination-btn pagination-next" 
                                     onClick={() => setCurrentPage(prev => prev + 1)} 
                                     disabled={!pagination.hasNextPage}
+                                    title="Next page"
                                 >
-                                    &rsaquo;
+                                    <span>›</span>
                                 </button>
                                 <button 
-                                    className="pagination-btn" 
+                                    className="pagination-btn pagination-last" 
                                     onClick={() => setCurrentPage(pagination.totalPages)} 
                                     disabled={!pagination.hasNextPage}
+                                    title="Last page"
                                 >
-                                    &raquo;
+                                    <span>»</span>
                                 </button>
                             </div>
                         </div>
@@ -277,10 +363,16 @@ const ProductCatalogByCategory = () => {
             {/* Empty State */}
             {!loading && !error && filteredProducts.length === 0 && (
                 <div className="empty-state">
-                    <span className="empty-icon">📭</span>
-                    <p>Không tìm thấy sản phẩm nào</p>
+                    <div className="empty-icon">📭</div>
+                    <h3>Không tìm thấy sản phẩm</h3>
+                    <p>
+                        {searchTerm 
+                            ? `Không có kết quả nào phù hợp với "${searchTerm}"` 
+                            : 'Danh mục này hiện chưa có sản phẩm nào.'
+                        }
+                    </p>
                     {searchTerm && (
-                        <button onClick={() => setSearchTerm('')} className="clear-search-btn">
+                        <button onClick={() => setSearchTerm('')} className="clear-filters-btn">
                             Xóa bộ lọc
                         </button>
                     )}

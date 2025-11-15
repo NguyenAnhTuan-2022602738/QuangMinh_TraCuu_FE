@@ -49,8 +49,8 @@ const CategorySelection = () => {
     if (loading) {
         return (
             <div className="category-selection-container">
-                <div className="loading-spinner">
-                    <div className="spinner"></div>
+                <div className="loading-state">
+                    <div className="loading-spinner"></div>
                     <p>Đang tải danh mục...</p>
                 </div>
             </div>
@@ -60,8 +60,9 @@ const CategorySelection = () => {
     if (error) {
         return (
             <div className="category-selection-container">
-                <div className="error-message">
+                <div className="error-state">
                     <span className="error-icon">⚠️</span>
+                    <h3>Đã xảy ra lỗi</h3>
                     <p>{error}</p>
                     <button onClick={fetchCategories} className="retry-btn">
                         Thử lại
@@ -71,57 +72,113 @@ const CategorySelection = () => {
         );
     }
 
+    // Icon helper cho các danh mục
+    const getCategoryIcon = (categoryName) => {
+        const iconMap = {
+            'default': '📦'
+        };
+        return iconMap[categoryName.toLowerCase()] || iconMap['default'];
+    };
+
     return (
         <div className="category-selection-container">
-            <div className="category-header">
-                <h1>📋 Chọn danh mục sản phẩm</h1>
-                <p className="subtitle">Vui lòng chọn danh mục để xem sản phẩm</p>
+            {/* Animated Background */}
+            <div className="category-background">
+                <div className="bg-shape"></div>
+                <div className="bg-shape"></div>
+                <div className="bg-shape"></div>
             </div>
 
-            {/* Tìm kiếm danh mục - Mobile */}
-            <div className="category-search-mobile">
+            {/* Header Section */}
+            <div className="category-header">
+                <div className="header-badge">
+                    <span className="badge-icon">🗂️</span>
+                </div>
+                <h1>Danh mục sản phẩm</h1>
+                <p className="subtitle">Khám phá các danh mục và tìm sản phẩm bạn cần</p>
+            </div>
+
+            {/* Search Box - Always visible */}
+            <div className="category-search">
+                <span className="search-icon">🔍</span>
                 <input
                     type="text"
-                    placeholder="🔍 Tìm danh mục..."
+                    placeholder="Tìm kiếm danh mục..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="search-input-mobile"
+                    className="search-input"
                 />
+                {searchTerm && (
+                    <button 
+                        className="clear-search"
+                        onClick={() => setSearchTerm('')}
+                        aria-label="Xóa tìm kiếm"
+                    >
+                        ✕
+                    </button>
+                )}
             </div>
 
-            {/* Toggle button cho mobile */}
-            <button 
-                className="toggle-categories-btn"
-                onClick={() => setIsExpanded(!isExpanded)}
-            >
-                <span className="toggle-icon">{isExpanded ? '▼' : '▶'}</span>
-                <span className="toggle-text">
-                    {isExpanded ? 'Thu gọn danh mục' : `Xem danh mục (${filteredCategories.length})`}
-                </span>
-            </button>
+            {/* Stats Bar */}
+            <div className="category-stats">
+                <div className="stat-item">
+                    <span className="stat-icon">📊</span>
+                    <span className="stat-text">
+                        <strong>{filteredCategories.length}</strong> danh mục
+                    </span>
+                </div>
+                <div className="stat-divider"></div>
+                <div className="stat-item">
+                    <span className="stat-icon">📦</span>
+                    <span className="stat-text">
+                        <strong>{categories.reduce((sum, cat) => sum + (cat.count || 0), 0)}</strong> sản phẩm
+                    </span>
+                </div>
+            </div>
 
-            {/* Desktop: Luôn hiện, Mobile: Theo isExpanded */}
-            <div className={`categories-grid ${isExpanded ? 'expanded' : ''}`}>
+            {/* Categories Grid */}
+            <div className="categories-grid">
                 {filteredCategories.map((category, index) => (
                     <div
                         key={index}
                         className="category-card"
                         onClick={() => handleCategoryClick(category.name)}
+                        style={{ animationDelay: `${index * 0.05}s` }}
                     >
-                        <div className="category-icon">
-                            📦
+                        <div className="category-card-inner">
+                            <div className="category-icon">
+                                {getCategoryIcon(category.name)}
+                            </div>
+                            <div className="category-content">
+                                <h3 className="category-name">{category.name}</h3>
+                                <div className="category-meta">
+                                    <span className="category-count">
+                                        <span className="count-icon">📦</span>
+                                        {category.count} sản phẩm
+                                    </span>
+                                </div>
+                            </div>
+                            <button className="view-category-btn">
+                                <span>Xem thêm</span>
+                                <span className="btn-arrow">→</span>
+                            </button>
                         </div>
-                        <h3 className="category-name">{category.name}</h3>
-                        <p className="category-count">{category.count} sản phẩm</p>
-                        <div className="category-arrow">→</div>
                     </div>
                 ))}
             </div>
 
+            {/* Empty State */}
             {filteredCategories.length === 0 && !loading && (
                 <div className="empty-state">
-                    <span className="empty-icon">📭</span>
-                    <p>Không tìm thấy danh mục phù hợp</p>
+                    <span className="empty-icon">🔍</span>
+                    <h3>Không tìm thấy danh mục</h3>
+                    <p>Không có danh mục nào phù hợp với "{searchTerm}"</p>
+                    <button 
+                        className="clear-filters-btn"
+                        onClick={() => setSearchTerm('')}
+                    >
+                        Xóa bộ lọc
+                    </button>
                 </div>
             )}
         </div>

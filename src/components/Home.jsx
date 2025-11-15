@@ -1,13 +1,158 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCustomer } from '../context/CustomerContext';
 import './Home.css';
+import { fetchPromotionBanner } from '../services/api';
+
+const DEFAULT_PROMOTION = {
+    title: 'Ưu đãi khuyến mãi đặc biệt',
+    subtitle: 'Giảm ngay 15% cho toàn bộ đơn hàng từ 5 triệu đồng trở lên khi đặt hàng trong tháng này. Ưu đãi áp dụng cho tất cả nhóm khách hàng và được hỗ trợ giao hàng nhanh.',
+    backgroundImageUrl: '',
+    isActive: true,
+    overlayOpacity: 0.55,
+    textAlignment: 'left',
+    primaryAction: {
+        label: 'Xem sản phẩm ưu đãi',
+        link: '/catalog'
+    },
+    secondaryAction: {
+        label: 'Tra cứu mã giảm giá',
+        link: '/search'
+    },
+    badgeText: 'Hot Deal',
+    highlightValue: '15%',
+    highlightNote: 'Giảm trực tiếp'
+};
 
 const Home = () => {
     const { customerType, locked } = useCustomer();
+    const [promotion, setPromotion] = useState(DEFAULT_PROMOTION);
+    const [promotionLoading, setPromotionLoading] = useState(true);
+    const [promotionError, setPromotionError] = useState('');
     
     // Check if we're on a price-type specific path
     const priceTypePrefix = locked ? `/${customerType}` : '';
+
+    // Loads the promotion banner configuration once when the component mounts.
+    useEffect(() => {
+        let isMounted = true;
+
+        // Fetches the promotion banner data from the API.
+        const loadPromotion = async () => {
+            try {
+                const data = await fetchPromotionBanner();
+                if (!isMounted || !data) {
+                    return;
+                }
+
+                setPromotion(prev => ({
+                    ...prev,
+                    ...data,
+                    primaryAction: {
+                        ...prev.primaryAction,
+                        ...(data.primaryAction || {})
+                    },
+                    secondaryAction: {
+                        ...prev.secondaryAction,
+                        ...(data.secondaryAction || {})
+                    },
+                    badgeText: data.badgeText || prev.badgeText,
+                    highlightValue: data.highlightValue || prev.highlightValue,
+                    highlightNote: data.highlightNote || prev.highlightNote
+                }));
+                setPromotionError('');
+            } catch (error) {
+                if (isMounted) {
+                    console.error('Failed to load promotion banner', error);
+                    setPromotion(DEFAULT_PROMOTION);
+                    setPromotionError('Không thể tải thông tin khuyến mãi, đang hiển thị nội dung mặc định.');
+                }
+            } finally {
+                if (isMounted) {
+                    setPromotionLoading(false);
+                }
+            }
+        };
+
+        loadPromotion();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    // Normalizes the overlay opacity value coming from the server/admin UI.
+    const overlayOpacity = useMemo(() => {
+        const value = Number(promotion?.overlayOpacity);
+        if (Number.isNaN(value)) {
+            return DEFAULT_PROMOTION.overlayOpacity;
+        }
+        return Math.min(Math.max(value, 0), 0.95);
+    }, [promotion?.overlayOpacity]);
+
+    // Builds the CSS classes needed to render the promotion card.
+    const promotionCardClasses = useMemo(() => {
+        const classes = ['promo-card'];
+        if (promotion?.backgroundImageUrl) {
+            classes.push('promo-card--with-image');
+        }
+        if (promotion?.textAlignment) {
+            classes.push(`promo-card--align-${promotion.textAlignment}`);
+        }
+        return classes.join(' ');
+    }, [promotion?.backgroundImageUrl, promotion?.textAlignment]);
+
+    // Applies the gradient overlay when a background image is configured.
+    const promotionBackgroundStyle = promotion?.backgroundImageUrl
+        ? {
+            backgroundImage: `linear-gradient(rgba(0,0,0,${overlayOpacity}), rgba(0,0,0,${overlayOpacity})), url(${promotion.backgroundImageUrl})`
+        }
+        : {};
+
+    // Normalizes internal links so they respect the selected price-type prefix.
+    const buildInternalLink = (targetPath) => {
+        if (!targetPath) {
+            return '';
+        }
+
+        if (/^https?:\/\//i.test(targetPath)) {
+            return targetPath;
+        }
+
+        let finalPath = targetPath.startsWith('/') ? targetPath : `/${targetPath}`;
+        if (priceTypePrefix && !finalPath.startsWith(priceTypePrefix)) {
+            finalPath = `${priceTypePrefix}${finalPath}`;
+        }
+        return finalPath;
+    };
+
+    // Renders an action button based on admin-provided configuration.
+    const renderActionButton = (action, variant, fallback) => {
+        const payload = action || {};
+        const label = payload.label?.trim() || fallback.label;
+        const link = payload.link?.trim() || fallback.link;
+
+        if (!label || !link) {
+            return null;
+        }
+
+        const className = `btn ${variant === 'primary' ? 'btn-primary btn-lg' : variant === 'outline' ? 'btn-outline btn-lg' : 'btn-secondary btn-lg'}`;
+
+        if (/^https?:\/\//i.test(link)) {
+            return (
+                <a href={link} className={className} target="_blank" rel="noopener noreferrer">
+                    {label}
+                </a>
+            );
+        }
+
+        const internalLink = buildInternalLink(link);
+        return (
+            <Link to={internalLink} className={className}>
+                {label}
+            </Link>
+        );
+    };
 
     return (
         <div className="home">
@@ -40,6 +185,34 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Promotion Banner Section */}
+            {!promotionLoading && promotion?.isActive !== false && (
+                <section className="promo-banner">
+                    <div className="container">
+                        <div className={promotionCardClasses} style={promotionBackgroundStyle}>
+                            <div className="promo-content">
+                                <h2 className="promo-title">{promotion?.title || DEFAULT_PROMOTION.title}</h2>
+                                <p className="promo-subtitle">
+                                    {promotion?.subtitle || DEFAULT_PROMOTION.subtitle}
+                                </p>
+                                <div className="promo-actions">
+                                    {renderActionButton(promotion?.primaryAction, 'primary', DEFAULT_PROMOTION.primaryAction)}
+                                    {renderActionButton(promotion?.secondaryAction, 'outline', DEFAULT_PROMOTION.secondaryAction)}
+                                </div>
+                            </div>
+                            <div className="promo-highlight">
+                                <div className="promo-badge">{promotion?.badgeText || DEFAULT_PROMOTION.badgeText}</div>
+                                <span className="promo-percent">{promotion?.highlightValue || DEFAULT_PROMOTION.highlightValue}</span>
+                                <span className="promo-note">{promotion?.highlightNote || DEFAULT_PROMOTION.highlightNote}</span>
+                            </div>
+                        </div>
+                        {promotionError && (
+                            <p className="promo-error">Không thể tải thông tin khuyến mãi, hiển thị nội dung mặc định.</p>
+                        )}
+                    </div>
+                </section>
+            )}
 
             {/* Features Section */}
             <section className="features">

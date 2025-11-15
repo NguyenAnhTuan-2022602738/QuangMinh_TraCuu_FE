@@ -110,6 +110,10 @@ const ProductCatalog = () => {
                     url += `&subcategory=${encodeURIComponent(selectedSubcategory)}`;
                 }
             }
+            const trimmedSearch = searchTerm.trim();
+            if (trimmedSearch) {
+                url += `&search=${encodeURIComponent(trimmedSearch)}`;
+            }
             
             const response = await axios.get(url, { headers });
             
@@ -139,7 +143,7 @@ const ProductCatalog = () => {
         } finally {
             setLoading(false);
         }
-    }, [customerType, selectedParentCategory, selectedSubcategory, productsPerPage, API_URL]);
+    }, [customerType, selectedParentCategory, selectedSubcategory, productsPerPage, API_URL, searchTerm]);
 
     useEffect(() => {
         fetchParentCategories();
@@ -251,7 +255,10 @@ const ProductCatalog = () => {
             {/* Sidebar */}
             <aside className={`catalog-sidebar ${isMobileSidebarOpen ? 'open' : 'collapsed'}`}>
                 <div className="sidebar-header">
-                    <h3>📂 Danh mục cha</h3>
+                    <div className="sidebar-header-content">
+                        <span className="sidebar-header-icon">🗂️</span>
+                        <h3>Danh mục sản phẩm</h3>
+                    </div>
                     <button
                         type="button"
                         className="sidebar-toggle-btn"
@@ -259,11 +266,8 @@ const ProductCatalog = () => {
                         aria-expanded={isMobileSidebarOpen}
                         aria-controls="parent-category-sidebar"
                     >
-                        <span className="sidebar-toggle-text">
-                            {isMobileSidebarOpen ? 'Thu gọn' : 'Chọn danh mục'}
-                        </span>
                         <span className="sidebar-toggle-icon">
-                            {isMobileSidebarOpen ? '▲' : '▼'}
+                            {isMobileSidebarOpen ? '✕' : '☰'}
                         </span>
                     </button>
                 </div>
@@ -272,13 +276,23 @@ const ProductCatalog = () => {
                     className={`sidebar-content ${isMobileSidebarOpen ? 'expanded' : ''}`}
                 >
                     <div className="sidebar-search">
+                        <span className="search-icon">🔍</span>
                         <input
                             type="text"
-                            placeholder="🔍 Tìm danh mục..."
+                            placeholder="Tìm danh mục..."
                             value={categorySearch}
                             onChange={(e) => setCategorySearch(e.target.value)}
                             className="sidebar-search-input"
                         />
+                        {categorySearch && (
+                            <button 
+                                className="clear-search"
+                                onClick={() => setCategorySearch('')}
+                                aria-label="Xóa tìm kiếm"
+                            >
+                                ✕
+                            </button>
+                        )}
                     </div>
                     <nav className="sidebar-nav">
                         <button
@@ -286,8 +300,13 @@ const ProductCatalog = () => {
                             onClick={() => handleParentCategorySelect('all')}
                         >
                             <span className="sidebar-icon">📦</span>
-                            <span className="sidebar-label">Tất cả sản phẩm</span>
-                            <span className="sidebar-count">{pagination.totalProducts}</span>
+                            <div className="sidebar-item-content">
+                                <span className="sidebar-label">Tất cả sản phẩm</span>
+                                <span className="sidebar-count">{pagination.totalProducts}</span>
+                            </div>
+                            {selectedParentCategory === 'all' && (
+                                <span className="active-indicator">→</span>
+                            )}
                         </button>
                         {filteredParentCategories.length > 0 ? (
                             filteredParentCategories.map((cat) => (
@@ -297,12 +316,20 @@ const ProductCatalog = () => {
                                     onClick={() => handleParentCategorySelect(cat)}
                                 >
                                     <span className="sidebar-icon">📁</span>
-                                    <span className="sidebar-label">{cat}</span>
+                                    <div className="sidebar-item-content">
+                                        <span className="sidebar-label">{cat}</span>
+                                    </div>
+                                    {selectedParentCategory === cat && (
+                                        <span className="active-indicator">→</span>
+                                    )}
                                 </button>
                             ))
                         ) : (
                             categorySearch ? (
-                                <div className="sidebar-empty">Không tìm thấy danh mục phù hợp</div>
+                                <div className="sidebar-empty">
+                                    <span className="empty-icon">🔍</span>
+                                    <p>Không tìm thấy danh mục</p>
+                                </div>
                             ) : null
                         )}
                     </nav>
@@ -311,21 +338,37 @@ const ProductCatalog = () => {
 
             {/* Main Content */}
             <main className="catalog-main">
+                {/* Catalog Background Animation */}
+                <div className="catalog-background">
+                    <div className="bg-shape"></div>
+                    <div className="bg-shape"></div>
+                    <div className="bg-shape"></div>
+                </div>
+
                 <div className="catalog-header">
-                    <h1>
-                        {selectedParentCategory === 'all' 
-                            ? '📦 Tất cả sản phẩm' 
-                            : `📁 ${selectedParentCategory}`}
-                    </h1>
-                    <p className="catalog-subtitle">
-                        Đang xem bảng giá: <strong className="price-type-badge">{customerType}</strong>
-                    </p>
+                    <div className="header-content">
+                        <div className="header-badge">
+                            {selectedParentCategory === 'all' ? '📦' : '📁'}
+                        </div>
+                        <div className="header-text">
+                            <h1>
+                                {selectedParentCategory === 'all' 
+                                    ? 'Tất cả sản phẩm' 
+                                    : selectedParentCategory}
+                            </h1>
+                            <p className="catalog-subtitle">
+                                Bảng giá: <span className="price-type-badge">{customerType}</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {error && (
-                    <div className="error-message">
-                        {error}
-                        <button onClick={fetchProducts} className="btn btn-secondary">
+                    <div className="error-state">
+                        <span className="error-icon">⚠️</span>
+                        <h3>Đã xảy ra lỗi</h3>
+                        <p>{error}</p>
+                        <button onClick={() => fetchProducts(currentPage)} className="retry-btn">
                             Thử lại
                         </button>
                     </div>
@@ -334,9 +377,10 @@ const ProductCatalog = () => {
                 {/* Search and Filter */}
                 <div className="catalog-controls">
                     <div className="search-box">
+                        <span className="search-icon">🔍</span>
                         <input
                             type="text"
-                            placeholder="🔍 Tìm kiếm theo tên hoặc mã sản phẩm..."
+                            placeholder="Tìm kiếm theo tên hoặc mã sản phẩm..."
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
@@ -344,55 +388,78 @@ const ProductCatalog = () => {
                             }}
                             className="search-input"
                         />
-                    </div>
-
-                    {subcategories.length > 0 && (
-                        <div className="subcategory-filter">
-                            <label>Danh mục con:</label>
-                            <select
-                                value={selectedSubcategory}
-                                onChange={(e) => {
-                                    setSelectedSubcategory(e.target.value);
+                        {searchTerm && (
+                            <button 
+                                className="clear-search"
+                                onClick={() => {
+                                    setSearchTerm('');
                                     setCurrentPage(1);
                                 }}
-                                className="subcategory-select"
+                                aria-label="Xóa tìm kiếm"
                             >
-                                <option value="all">Tất cả</option>
-                                {subcategories.map((sub, index) => (
-                                    <option key={index} value={sub}>
-                                        {sub}
-                                    </option>
-                                ))}
+                                ✕
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="filters-row">
+                        {subcategories.length > 0 && (
+                            <div className="subcategory-filter">
+                                <label className="filter-label">
+                                    <span className="filter-icon">🏷️</span>
+                                    Danh mục con:
+                                </label>
+                                <select
+                                    value={selectedSubcategory}
+                                    onChange={(e) => {
+                                        setSelectedSubcategory(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                    className="subcategory-select"
+                                >
+                                    <option value="all">Tất cả</option>
+                                    {subcategories.map((sub, index) => (
+                                        <option key={index} value={sub}>
+                                            {sub}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
+                        
+                        <div className="products-per-page-filter">
+                            <label className="filter-label">
+                                <span className="filter-icon">📊</span>
+                                Hiển thị:
+                            </label>
+                            <select
+                                value={productsPerPage}
+                                onChange={(e) => handleProductsPerPageChange(Number(e.target.value))}
+                                className="per-page-select"
+                            >
+                                <option value={12}>12 SP</option>
+                                <option value={24}>24 SP</option>
+                                <option value={48}>48 SP</option>
+                                <option value={96}>96 SP</option>
                             </select>
                         </div>
-                    )}
-                    
-                    <div className="products-per-page-filter">
-                        <label>Hiển thị:</label>
-                        <select
-                            value={productsPerPage}
-                            onChange={(e) => handleProductsPerPageChange(Number(e.target.value))}
-                            className="per-page-select"
-                        >
-                            <option value={12}>12 sản phẩm</option>
-                            <option value={24}>24 sản phẩm</option>
-                            <option value={48}>48 sản phẩm</option>
-                            <option value={96}>96 sản phẩm</option>
-                        </select>
                     </div>
                 </div>
 
                 {/* Results count */}
                 <div className="results-info">
-                    Hiển thị <strong>{filteredProducts.length}</strong> sản phẩm trên tổng số <strong>{pagination.totalProducts}</strong> sản phẩm
-                    {searchTerm && ` khớp với "${searchTerm}"`}
-                    {selectedParentCategory !== 'all' && ` trong danh mục "${selectedParentCategory}"`}
+                    <span className="results-icon">📈</span>
+                    <span className="results-text">
+                        Hiển thị <strong>{filteredProducts.length}</strong> / <strong>{pagination.totalProducts}</strong> sản phẩm
+                        {searchTerm && <span className="search-highlight"> · Tìm kiếm "{searchTerm}"</span>}
+                        {selectedParentCategory !== 'all' && <span className="category-highlight"> · {selectedParentCategory}</span>}
+                    </span>
                 </div>
 
                 {/* Product Grid */}
                 {filteredProducts.length === 0 ? (
-                    <div className="no-results card">
-                        <div className="no-results-icon">📦</div>
+                    <div className="empty-state">
+                        <span className="empty-icon">📦</span>
                         <h3>Không tìm thấy sản phẩm</h3>
                         <p>
                             {searchTerm 
@@ -400,36 +467,58 @@ const ProductCatalog = () => {
                                 : 'Không có sản phẩm nào trong danh mục này'
                             }
                         </p>
+                        {searchTerm && (
+                            <button 
+                                className="clear-filters-btn"
+                                onClick={() => {
+                                    setSearchTerm('');
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                Xóa bộ lọc
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <div className="product-grid">
                         {filteredProducts.map(product => (
                             <div 
                                 key={product.code} 
-                                className="product-card card"
+                                className="product-card"
                                 onClick={() => handleProductClick(product)}
-                                style={{ cursor: 'pointer' }}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        handleProductClick(product);
+                                    }
+                                }}
                             >
-                                <div className="product-header">
-                                    <span className="product-code">{product.code}</span>
-                                    {product.subcategory && (
-                                        <span className="product-subcategory">{product.subcategory}</span>
-                                    )}
+                                <div className="product-image-placeholder">
+                                    <span className="placeholder-icon">📷</span>
                                 </div>
-                                {selectedParentCategory === 'all' && product.parentCategory && (
-                                    <div className="product-parent-category">
-                                        📁 {product.parentCategory}
+                                <div className="product-content">
+                                    <div className="product-header">
+                                        <span className="product-code">{product.code}</span>
+                                        {product.parentCategory && (
+                                            <span className="product-category">📁 {product.parentCategory}</span>
+                                        )}
                                     </div>
-                                )}
-                                <h3 className="product-name" title={product.name}>{product.name}</h3>
-                                <div className="product-details">
-                                    <div className="product-info">
-                                        <span className="info-label">Đơn vị:</span>
-                                        <span className="info-value">{product.unit}</span>
+                                    <h3 className="product-name" title={product.name}>{product.name}</h3>
+                                    <div className="product-footer">
+                                        <div className="product-unit">
+                                            <span className="label">📦 Đơn vị:</span>
+                                            <span className="value">{product.unit}</span>
+                                        </div>
+                                        <div className="product-price">
+                                            {formatPrice(product.price)}
+                                        </div>
                                     </div>
-                                    <div className="product-price">
-                                        {formatPrice(product.price)}
-                                    </div>
+                                    <button className="view-details-btn">
+                                        <span>Xem chi tiết</span>
+                                        <span className="btn-arrow">→</span>
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -438,42 +527,49 @@ const ProductCatalog = () => {
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
-                    <div className="pagination-container">
+                    <div className="pagination-wrapper">
                         <div className="pagination">
                             <button 
                                 className="pagination-btn" 
                                 onClick={() => setCurrentPage(1)} 
                                 disabled={!pagination.hasPrevPage}
+                                title="Trang đầu"
                             >
-                                &laquo;
+                                ⟨⟨
                             </button>
                             <button 
                                 className="pagination-btn" 
                                 onClick={() => setCurrentPage(prev => prev - 1)} 
                                 disabled={!pagination.hasPrevPage}
+                                title="Trang trước"
                             >
-                                &lsaquo;
+                                ‹
                             </button>
 
                             <div className="pagination-info">
-                                Trang <span className="current-page">{pagination.currentPage}</span> / 
-                                <span className="total-pages">{pagination.totalPages}</span>
-                                <span className="pagination-total">({pagination.totalProducts} sản phẩm)</span>
+                                <span className="page-current">{pagination.currentPage}</span>
+                                <span className="page-separator">/</span>
+                                <span className="page-total">{pagination.totalPages}</span>
+                                <span className="products-total">
+                                    ({pagination.totalProducts} SP)
+                                </span>
                             </div>
 
                             <button 
                                 className="pagination-btn" 
                                 onClick={() => setCurrentPage(prev => prev + 1)} 
                                 disabled={!pagination.hasNextPage}
+                                title="Trang sau"
                             >
-                                &rsaquo;
+                                ›
                             </button>
                             <button 
                                 className="pagination-btn" 
                                 onClick={() => setCurrentPage(pagination.totalPages)} 
                                 disabled={!pagination.hasNextPage}
+                                title="Trang cuối"
                             >
-                                &raquo;
+                                ⟩⟩
                             </button>
                         </div>
                     </div>
@@ -481,19 +577,36 @@ const ProductCatalog = () => {
             </main>
         </div>
 
-        {/* Product Detail Modal - Fixed positioning */}
+        {/* Product Detail Modal */}
         {showModal && selectedProduct && (
             <div 
                 className="modal-overlay" 
                 onClick={handleCloseModal}
-                style={{ top: `${selectedProduct.scrollTop}px` }}
             >
                 <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close" onClick={handleCloseModal}>
+                        <button className="modal-close" onClick={handleCloseModal} aria-label="Đóng">
                             ✕
                         </button>
                         
-                        {/* Product Image */}
+                        <div className="modal-header">
+                            <div className="modal-badge-group">
+                                <span className="modal-code-badge">{selectedProduct.code}</span>
+                                {selectedProduct.subcategory && (
+                                    <span className="modal-subcategory-badge">
+                                        {selectedProduct.subcategory}
+                                    </span>
+                                )}
+                            </div>
+                            {selectedProduct.parentCategory && (
+                                <div className="modal-parent-category">
+                                    <span className="parent-icon">📁</span>
+                                    {selectedProduct.parentCategory}
+                                </div>
+                            )}
+                        </div>
+
+                        <h2 className="modal-title">{selectedProduct.name}</h2>
+
                         {selectedProduct.image && (
                             <div className="modal-image-container">
                                 <img 
@@ -507,61 +620,67 @@ const ProductCatalog = () => {
                                 />
                             </div>
                         )}
-                        
-                        <div className="modal-header">
-                            <div className="modal-code-badge">{selectedProduct.code}</div>
-                            {selectedProduct.parentCategory && (
-                                <div className="modal-parent-category">
-                                    📁 {selectedProduct.parentCategory}
-                                </div>
-                            )}
-                            {selectedProduct.subcategory && (
-                                <div className="modal-subcategory">
-                                    {selectedProduct.subcategory}
-                                </div>
-                            )}
-                        </div>
-
-                        <h2 className="modal-title">{selectedProduct.name}</h2>
 
                         <div className="modal-details">
                             <div className="modal-detail-row">
-                                <span className="detail-label">📦 Mã sản phẩm:</span>
+                                <span className="detail-label">
+                                    <span className="detail-icon">📦</span>
+                                    Mã sản phẩm:
+                                </span>
                                 <span className="detail-value">{selectedProduct.code}</span>
                             </div>
                             
                             {selectedProduct.parentCategory && (
                                 <div className="modal-detail-row">
-                                    <span className="detail-label">📁 Danh mục cha:</span>
+                                    <span className="detail-label">
+                                        <span className="detail-icon">📁</span>
+                                        Danh mục cha:
+                                    </span>
                                     <span className="detail-value">{selectedProduct.parentCategory}</span>
                                 </div>
                             )}
                             
                             {selectedProduct.subcategory && (
                                 <div className="modal-detail-row">
-                                    <span className="detail-label">🏷️ Danh mục con:</span>
+                                    <span className="detail-label">
+                                        <span className="detail-icon">🏷️</span>
+                                        Danh mục con:
+                                    </span>
                                     <span className="detail-value">{selectedProduct.subcategory}</span>
                                 </div>
                             )}
                             
                             {selectedProduct.category && (
                                 <div className="modal-detail-row">
-                                    <span className="detail-label">📂 Danh mục:</span>
+                                    <span className="detail-label">
+                                        <span className="detail-icon">📂</span>
+                                        Danh mục:
+                                    </span>
                                     <span className="detail-value">{selectedProduct.category}</span>
                                 </div>
                             )}
                             
                             <div className="modal-detail-row">
-                                <span className="detail-label">📏 Đơn vị:</span>
+                                <span className="detail-label">
+                                    <span className="detail-icon">📏</span>
+                                    Đơn vị:
+                                </span>
                                 <span className="detail-value">{selectedProduct.unit}</span>
                             </div>
                         </div>
 
                         <div className="modal-price-section">
-                            <div className="modal-price-label">Giá bán</div>
+                            <div className="modal-price-label">Giá bán ({customerType})</div>
                             <div className="modal-price-value">
                                 {formatPrice(selectedProduct.price)}
                             </div>
+                        </div>
+
+                        <div className="modal-actions">
+                            <button className="modal-action-btn secondary" onClick={handleCloseModal}>
+                                <span className="btn-icon">✕</span>
+                                Đóng
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -23,6 +23,7 @@ const App = () => {
             <Route exact path="/admin/users" component={AdminPanel} />
             <Route exact path="/admin/qr" component={AdminPanel} />
             <Route exact path="/admin/categories" component={AdminPanel} />
+            <Route exact path="/admin/promotions" component={AdminPanel} />
             
             {/* Customer-specific routes with locked price type */}
             <Route path="/BBCL" render={() => <AppWithPriceType priceType="BBCL" />} />

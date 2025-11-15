@@ -5,6 +5,7 @@ import './AdminPanel.css';
 import AdminQR from './AdminQR';
 import AdminUserManagement from './AdminUserManagement';
 import CategoryManagement from './CategoryManagement';
+import PromotionManagement from './PromotionManagement';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -15,6 +16,8 @@ const AdminPanel = () => {
     const [showForm, setShowForm] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedProducts, setSelectedProducts] = useState([]);
     const [uploading, setUploading] = useState(false);
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const history = useHistory();
@@ -49,6 +52,10 @@ const AdminPanel = () => {
         if (path.includes('/admin/categories')) {
             console.log('✅ Active view: categories');
             return 'categories';
+        }
+        if (path.includes('/admin/promotions')) {
+            console.log('✅ Active view: promotions');
+            return 'promotions';
         }
         
         console.log('✅ Active view: dashboard');
@@ -221,6 +228,59 @@ const AdminPanel = () => {
         }
     };
 
+    const handleBulkDelete = async () => {
+        if (selectedProducts.length === 0) {
+            alert('Vui lòng chọn ít nhất một sản phẩm để xóa');
+            return;
+        }
+
+        if (!window.confirm(`Bạn có chắc muốn xóa ${selectedProducts.length} sản phẩm đã chọn?`)) return;
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            const deletePromises = selectedProducts.map(id =>
+                fetch(`${API_URL}/products/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            );
+
+            const results = await Promise.allSettled(deletePromises);
+            const successCount = results.filter(result => result.status === 'fulfilled' && result.value.ok).length;
+            const failCount = results.length - successCount;
+
+            if (successCount > 0) {
+                alert(`Xóa thành công ${successCount} sản phẩm${failCount > 0 ? `, thất bại ${failCount}` : ''}!`);
+                setSelectedProducts([]);
+                fetchProducts();
+            } else {
+                alert('Không thể xóa sản phẩm nào. Vui lòng thử lại.');
+            }
+        } catch (err) {
+            console.error('Bulk delete error:', err);
+            alert('Lỗi kết nối server khi xóa hàng loạt');
+        }
+    };
+
+    const handleSelectAll = (checked) => {
+        if (checked) {
+            setSelectedProducts(filteredProducts.map(p => p._id));
+        } else {
+            setSelectedProducts([]);
+        }
+    };
+
+    const handleSelectProduct = (productId, checked) => {
+        if (checked) {
+            setSelectedProducts(prev => [...prev, productId]);
+        } else {
+            setSelectedProducts(prev => prev.filter(id => id !== productId));
+        }
+    };
+
     const handleExcelUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -353,10 +413,13 @@ const AdminPanel = () => {
         XLSX.writeFile(wb, 'mau-import-san-pham.xlsx');
     };
 
+    const categories = [...new Set(products.map(p => p.parentCategory || p.category).filter(Boolean))].sort();
+
     const filteredProducts = (Array.isArray(products) ? products : []).filter(p => 
-        String(p.code).toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (String(p.code).toLowerCase().includes(searchTerm.toLowerCase()) ||
         String(p.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
-        String(p.category).toLowerCase().includes(searchTerm.toLowerCase())
+        String(p.category).toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedCategory === '' || p.parentCategory === selectedCategory || p.category === selectedCategory)
     );
 
     return (
@@ -410,6 +473,14 @@ const AdminPanel = () => {
                     </button>
 
                     <button 
+                        className={`nav-item ${activeView === 'promotions' ? 'active' : ''}`}
+                        onClick={() => history.push('/admin/promotions')}
+                    >
+                        <span className="nav-icon">🎯</span>
+                        <span className="nav-label">Banner khuyến mãi</span>
+                    </button>
+
+                    <button 
                         className={`nav-item ${activeView === 'qr' ? 'active' : ''}`}
                         onClick={() => history.push('/admin/qr')}
                     >
@@ -441,6 +512,7 @@ const AdminPanel = () => {
                             {activeView === 'users' && '👥 Quản lý tài khoản'}
                             {activeView === 'qr' && '🔗 Tạo QR Code'}
                             {activeView === 'categories' && '🗂️ Quản lý danh mục'}
+                            {activeView === 'promotions' && '🎯 Banner khuyến mãi'}
                         </h1>
                         <p className="page-subtitle">Phụ tùng xe máy Quang Minh</p>
                     </div>
@@ -511,16 +583,40 @@ const AdminPanel = () => {
                     {activeView === 'products' && (
                         <div className="products-view">
                             <div className="view-toolbar">
-                <div className="search-box-admin">
-                    <input
-                        type="text"
-                        placeholder="🔍 Tìm kiếm sản phẩm..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div className="search-filters">
+                    <div className="search-box-admin">
+                        <input
+                            type="text"
+                            placeholder="🔍 Tìm kiếm sản phẩm..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    
+                    <div className="category-filter">
+                        <select
+                            value={selectedCategory}
+                            onChange={(e) => setSelectedCategory(e.target.value)}
+                            className="category-select"
+                        >
+                            <option value="">Tất cả danh mục</option>
+                            {categories.map(category => (
+                                <option key={category} value={category}>{category}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
                 
                 <div className="toolbar-buttons">
+                    {selectedProducts.length > 0 && (
+                        <button 
+                            onClick={handleBulkDelete}
+                            className="btn btn-danger"
+                        >
+                            🗑️ Xóa ({selectedProducts.length})
+                        </button>
+                    )}
+                    
                     <button 
                         onClick={() => {
                             setShowForm(true);
@@ -736,6 +832,13 @@ const AdminPanel = () => {
                             <table className="products-table">
                                 <thead>
                                     <tr>
+                                        <th>
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+                                                onChange={(e) => handleSelectAll(e.target.checked)}
+                                            />
+                                        </th>
                                         <th>Mã SP</th>
                                         <th>Tên sản phẩm</th>
                                         <th>Danh mục cha</th>
@@ -752,6 +855,13 @@ const AdminPanel = () => {
                                 <tbody>
                                     {filteredProducts.map(product => (
                                         <tr key={product._id}>
+                                            <td>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedProducts.includes(product._id)}
+                                                    onChange={(e) => handleSelectProduct(product._id, e.target.checked)}
+                                                />
+                                            </td>
                                             <td><code>{product.code}</code></td>
                                             <td className="product-name" title={product.name}>{product.name}</td>
                                             <td><span className="category-badge parent">{product.parentCategory || product.category}</span></td>
@@ -814,7 +924,15 @@ const AdminPanel = () => {
                 {activeView === 'categories' && (
                     <div className="admin-category-container">
                         {console.log('🗂️ Rendering CategoryManagement component')}
-                        <CategoryManagement />
+                        <CategoryManagement onDataChanged={fetchProducts} />
+                    </div>
+                )}
+
+                {/* Promotion Banner Management View */}
+                {activeView === 'promotions' && (
+                    <div className="admin-promotion-container">
+                        {console.log('🎯 Rendering PromotionManagement component')}
+                        <PromotionManagement />
                     </div>
                 )}
 
