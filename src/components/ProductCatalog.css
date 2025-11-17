@@ -716,6 +716,40 @@
    PRODUCT GRID
    ======================================== */
 
+.catalog-results-area {
+    position: relative;
+    min-height: 200px;
+}
+
+.catalog-inline-loader {
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(2px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    border-radius: 24px;
+    text-align: center;
+    padding: 2rem;
+    animation: fadeIn 0.2s ease;
+}
+
+.catalog-inline-loader .spinner {
+    width: 48px;
+    height: 48px;
+    border-width: 4px;
+    margin-bottom: 0.75rem;
+}
+
+.catalog-inline-loader p {
+    margin: 0;
+    color: #1f2937;
+    font-weight: 600;
+}
+
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

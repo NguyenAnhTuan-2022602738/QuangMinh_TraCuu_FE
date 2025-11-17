@@ -23,6 +23,7 @@ const ProductCatalog = () => {
         return true;
     });
     const [loading, setLoading] = useState(true);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [productsPerPage, setProductsPerPage] = useState(12);
@@ -142,6 +143,7 @@ const ProductCatalog = () => {
             setError(msg);
         } finally {
             setLoading(false);
+            setIsInitialLoad(false);
         }
     }, [customerType, selectedParentCategory, selectedSubcategory, productsPerPage, API_URL, searchTerm]);
 
@@ -247,7 +249,7 @@ const ProductCatalog = () => {
         setTimeout(() => setSelectedProduct(null), 300); // Wait for animation
     };
 
-    if (loading) {
+    if (loading && isInitialLoad) {
         return (
             <div className="loading">
                 <div className="spinner"></div>
@@ -464,86 +466,95 @@ const ProductCatalog = () => {
                 </div>
 
                 {/* Product Grid */}
-                {filteredProducts.length === 0 ? (
-                    <div className="empty-state">
-                        <span className="empty-icon">📦</span>
-                        <h3>Không tìm thấy sản phẩm</h3>
-                        <p>
-                            {searchTerm 
-                                ? 'Vui lòng thử tìm kiếm với từ khóa khác' 
-                                : 'Không có sản phẩm nào trong danh mục này'
-                            }
-                        </p>
-                        {searchTerm && (
-                            <button 
-                                className="clear-filters-btn"
-                                onClick={() => {
-                                    setSearchTerm('');
-                                    setCurrentPage(1);
-                                }}
-                            >
-                                Xóa bộ lọc
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    <div className="product-grid">
-                        {filteredProducts.map(product => (
-                            <div 
-                                key={product.code} 
-                                className="product-card"
-                                onClick={() => handleProductClick(product)}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        handleProductClick(product);
-                                    }
-                                }}
-                            >
-                                {product.image && (
-                                    <div className="product-image-placeholder">
-                                        <img
-                                            src={product.image}
-                                            alt={product.name}
-                                            loading="lazy"
-                                            decoding="async"
-                                            onError={(e) => {
-                                                const container = e.currentTarget.closest('.product-image-placeholder');
-                                                if (container) {
-                                                    container.style.display = 'none';
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                )}
-                                <div className="product-content">
-                                    <div className="product-header">
-                                        <span className="product-code">{product.code}</span>
-                                        {product.parentCategory && (
-                                            <span className="product-category">📁 {product.parentCategory}</span>
-                                        )}
-                                    </div>
-                                    <h3 className="product-name" title={product.name}>{product.name}</h3>
-                                    <div className="product-footer">
-                                        <div className="product-unit">
-                                            <span className="label">📦 Đơn vị:</span>
-                                            <span className="value">{product.unit}</span>
+                <div className="catalog-results-area">
+                    {loading && !isInitialLoad && (
+                        <div className="catalog-inline-loader" aria-live="polite">
+                            <div className="spinner"></div>
+                            <p>Đang cập nhật sản phẩm...</p>
+                        </div>
+                    )}
+
+                    {filteredProducts.length === 0 ? (
+                        <div className="empty-state">
+                            <span className="empty-icon">📦</span>
+                            <h3>Không tìm thấy sản phẩm</h3>
+                            <p>
+                                {searchTerm 
+                                    ? 'Vui lòng thử tìm kiếm với từ khóa khác' 
+                                    : 'Không có sản phẩm nào trong danh mục này'
+                                }
+                            </p>
+                            {searchTerm && (
+                                <button 
+                                    className="clear-filters-btn"
+                                    onClick={() => {
+                                        setSearchTerm('');
+                                        setCurrentPage(1);
+                                    }}
+                                >
+                                    Xóa bộ lọc
+                                </button>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="product-grid">
+                            {filteredProducts.map(product => (
+                                <div 
+                                    key={product.code} 
+                                    className="product-card"
+                                    onClick={() => handleProductClick(product)}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
+                                            e.preventDefault();
+                                            handleProductClick(product);
+                                        }
+                                    }}
+                                >
+                                    {product.image && (
+                                        <div className="product-image-placeholder">
+                                            <img
+                                                src={product.image}
+                                                alt={product.name}
+                                                loading="lazy"
+                                                decoding="async"
+                                                onError={(e) => {
+                                                    const container = e.currentTarget.closest('.product-image-placeholder');
+                                                    if (container) {
+                                                        container.style.display = 'none';
+                                                    }
+                                                }}
+                                            />
                                         </div>
-                                        <div className="product-price">
-                                            {formatPrice(product.price)}
+                                    )}
+                                    <div className="product-content">
+                                        <div className="product-header">
+                                            <span className="product-code">{product.code}</span>
+                                            {product.parentCategory && (
+                                                <span className="product-category">📁 {product.parentCategory}</span>
+                                            )}
                                         </div>
+                                        <h3 className="product-name" title={product.name}>{product.name}</h3>
+                                        <div className="product-footer">
+                                            <div className="product-unit">
+                                                <span className="label">📦 Đơn vị:</span>
+                                                <span className="value">{product.unit}</span>
+                                            </div>
+                                            <div className="product-price">
+                                                {formatPrice(product.price)}
+                                            </div>
+                                        </div>
+                                        <button className="view-details-btn">
+                                            <span>Xem chi tiết</span>
+                                            <span className="btn-arrow">→</span>
+                                        </button>
                                     </div>
-                                    <button className="view-details-btn">
-                                        <span>Xem chi tiết</span>
-                                        <span className="btn-arrow">→</span>
-                                    </button>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 {/* Pagination */}
                 {pagination.totalPages > 1 && (
