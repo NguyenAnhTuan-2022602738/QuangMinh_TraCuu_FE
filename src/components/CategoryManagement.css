@@ -648,6 +648,10 @@
     font-size: 0.85rem;
 }
 
+.category-management-modern.has-active-panel {
+    padding-bottom: 4rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .category-management-modern {
@@ -704,6 +708,56 @@
         width: 100%;
     }
 }
+
+    @media (max-width: 640px) {
+        .category-management-modern {
+            padding: 1rem 0.75rem 2rem;
+        }
+
+        .category-management-modern.has-active-panel {
+            padding-bottom: calc(70vh + 2rem);
+        }
+
+        .category-products-panel {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-height: 75vh;
+            border-radius: 24px 24px 0 0;
+            box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.25);
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .panel-actions {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .panel-actions .btn,
+        .panel-actions .btn-sm,
+        .panel-actions .btn-close-panel {
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .products-grid {
+            padding: 1.25rem;
+            grid-template-columns: 1fr;
+            overflow-y: auto;
+            flex: 1;
+        }
+    }
 .category-card {
     background: white;
     border-radius: 1rem;

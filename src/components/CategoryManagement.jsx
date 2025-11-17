@@ -53,7 +53,7 @@ const CategoryManagement = ({ onDataChanged }) => {
             const categoriesWithCount = await Promise.all(
                 parentCategories.map(async (categoryName) => {
                     try {
-                        const productsRes = await axios.get(`${API_URL}/categories/${encodeURIComponent(categoryName)}/products`, {
+                        const productsRes = await axios.get(`${API_URL}/products/categories/${encodeURIComponent(categoryName)}/products`, {
                             params: { limit: 1 } // Just get count, not all products
                         });
                         const count = productsRes.data?.pagination?.totalProducts || 0;
@@ -91,7 +91,7 @@ const CategoryManagement = ({ onDataChanged }) => {
         try {
             setLoadingProducts(true);
             console.log('📦 Loading products for category:', categoryName);
-            const response = await axios.get(`${API_URL}/categories/${encodeURIComponent(categoryName)}/products`, {
+            const response = await axios.get(`${API_URL}/products/categories/${encodeURIComponent(categoryName)}/products`, {
                 params: { limit: 1000 } // Get all products for this category
             });
 
@@ -124,10 +124,16 @@ const CategoryManagement = ({ onDataChanged }) => {
         }
 
         try {
+            let updatedProducts = 0;
+            const previousName = editingCategory?.name;
+
             if (editingCategory) {
                 // Update category name - update all products in this category
-                await updateCategoryName(editingCategory.name, formData.name);
-                alert('Cập nhật danh mục thành công!');
+                updatedProducts = await updateCategoryName(editingCategory.name, formData.name);
+                const message = updatedProducts
+                    ? `Cập nhật danh mục thành công! Đã áp dụng cho ${updatedProducts} sản phẩm.`
+                    : 'Cập nhật danh mục thành công (không có sản phẩm nào trong danh mục này).';
+                alert(message);
             } else {
                 // Create new category - create a sample product
                 await createNewCategory(formData.name, formData.description);
@@ -137,7 +143,10 @@ const CategoryManagement = ({ onDataChanged }) => {
             setShowForm(false);
             setFormData({ name: '', description: '' });
             setEditingCategory(null);
-            fetchCategories(); // Refresh the list
+            await fetchCategories(); // Refresh the list
+            if (previousName && selectedCategory === previousName) {
+                await loadCategoryProducts(formData.name);
+            }
             
             // Notify parent component to refresh data
             if (onDataChanged) {
@@ -183,25 +192,31 @@ const CategoryManagement = ({ onDataChanged }) => {
     // Update category name by updating all products in that category
     const updateCategoryName = async (oldName, newName) => {
         try {
-            // Get all products in this category
-            const response = await axios.get(`${API_URL}/products`, {
-                params: { parent: oldName }
+            const headers = {
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+            };
+
+            const response = await axios.get(
+                `${API_URL}/products/categories/${encodeURIComponent(oldName)}/products`,
+                { params: { limit: 2000 }, headers }
+            );
+
+            const productsInCategory = response.data?.products || [];
+
+            if (productsInCategory.length === 0) {
+                return 0;
+            }
+
+            const updatePayloads = productsInCategory.map(product => {
+                const payload = { parentCategory: newName };
+                if (String(product.category).toLowerCase() === String(oldName).toLowerCase()) {
+                    payload.category = newName;
+                }
+                return axios.put(`${API_URL}/products/${product._id}`, payload, { headers });
             });
 
-            if (response.data.products && response.data.products.length > 0) {
-                // Update each product
-                const updatePromises = response.data.products.map(product =>
-                    axios.put(`${API_URL}/products/${product._id}`, {
-                        parentCategory: newName
-                    }, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                        }
-                    })
-                );
-
-                await Promise.all(updatePromises);
-            }
+            await Promise.all(updatePayloads);
+            return productsInCategory.length;
         } catch (error) {
             throw new Error('Không thể cập nhật tên danh mục: ' + error.message);
         }
@@ -445,8 +460,13 @@ const CategoryManagement = ({ onDataChanged }) => {
         );
     }
 
+    const containerClasses = ['category-management-modern'];
+    if (selectedCategory) {
+        containerClasses.push('has-active-panel');
+    }
+
     return (
-        <div className="category-management-modern">
+        <div className={containerClasses.join(' ')}>
             {/* Header */}
             <div className="category-header">
                 <div className="header-content">

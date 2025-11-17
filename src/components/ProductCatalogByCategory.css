@@ -183,12 +183,15 @@
 
 .search-icon {
     position: absolute;
-    left: 12%;
+    left: 2%;
     top: 50%;
     transform: translateY(-50%);
     font-size: 1.1rem;
     color: #a0aec0;
 }
+ .sidebar-search .search-icon{
+        left: 10%;
+    }
 
 .search-input {
     width: 100%;
@@ -727,6 +730,13 @@
         min-width: 36px;
         font-size: 0.9rem;
     }
+    .search-input-group .search-icon{
+        top:22%
+    }
+
+    .sidebar-search .search-icon{
+        left: 10%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -754,6 +764,12 @@
     .pagination-info {
         font-size: 0.85rem;
         margin: 0 0.5rem;
+    }
+    .search-input-group .search-icon{
+        top:22%
+    }
+     .sidebar-search .search-icon{
+        left: 10%;
     }
 }
 

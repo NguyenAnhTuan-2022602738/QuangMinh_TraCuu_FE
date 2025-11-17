@@ -269,14 +269,7 @@ const ProductSearch = () => {
                                 <span className="tip-icon">✓</span>
                                 Hoặc nhập tên sản phẩm để tìm tất cả sản phẩm liên quan
                             </li>
-                            <li>
-                                <span className="tip-icon">✓</span>
-                                Kết quả sẽ hiển thị giá theo loại khách hàng bạn đã chọn
-                            </li>
-                            <li>
-                                <span className="tip-icon">✓</span>
-                                Thay đổi loại giá ở góc trên bên phải để xem giá khác
-                            </li>
+                           
                         </ul>
                     </div>
                 )}

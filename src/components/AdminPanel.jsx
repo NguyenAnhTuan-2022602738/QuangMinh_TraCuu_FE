@@ -19,10 +19,32 @@ const AdminPanel = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [uploading, setUploading] = useState(false);
-    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const getInitialIsMobile = () => {
+        if (typeof window === 'undefined') {
+            return false;
+        }
+        return window.innerWidth < 1024;
+    };
+
+    const [isMobile, setIsMobile] = useState(getInitialIsMobile);
+    const [sidebarOpen, setSidebarOpen] = useState(() => !getInitialIsMobile());
     const history = useHistory();
     const location = useLocation();
     const isMountedRef = useRef(true);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (typeof window === 'undefined') return;
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (!mobile) {
+                setSidebarOpen(true);
+            }
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         // Track mount state to avoid setting state after unmount
@@ -63,6 +85,13 @@ const AdminPanel = () => {
     };
 
     const activeView = getActiveView();
+
+    const handleNavigate = (path) => {
+        history.push(path);
+        if (isMobile) {
+            setSidebarOpen(false);
+        }
+    };
 
     const [formData, setFormData] = useState({
         code: '',
@@ -423,7 +452,7 @@ const AdminPanel = () => {
     );
 
     return (
-        <div className="admin-panel-modern">
+        <div className={`admin-panel-modern ${isMobile ? 'is-mobile' : ''} ${sidebarOpen ? 'sidebar-visible' : ''}`}>
             {/* Sidebar */}
             <aside className={`admin-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
                 <div className="sidebar-header">
@@ -442,7 +471,7 @@ const AdminPanel = () => {
                 <nav className="sidebar-nav">
                     <button 
                         className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}
-                        onClick={() => history.push('/admin')}
+                        onClick={() => handleNavigate('/admin')}
                     >
                         <span className="nav-icon">📊</span>
                         <span className="nav-label">Tổng quan</span>
@@ -450,7 +479,7 @@ const AdminPanel = () => {
                     
                     <button 
                         className={`nav-item ${activeView === 'products' ? 'active' : ''}`}
-                        onClick={() => history.push('/admin/products')}
+                        onClick={() => handleNavigate('/admin/products')}
                     >
                         <span className="nav-icon">📦</span>
                         <span className="nav-label">Sản phẩm</span>
@@ -458,7 +487,7 @@ const AdminPanel = () => {
 
                     <button 
                         className={`nav-item ${activeView === 'users' ? 'active' : ''}`}
-                        onClick={() => history.push('/admin/users')}
+                        onClick={() => handleNavigate('/admin/users')}
                     >
                         <span className="nav-icon">👥</span>
                         <span className="nav-label">Tài khoản</span>
@@ -466,7 +495,7 @@ const AdminPanel = () => {
 
                     <button 
                         className={`nav-item ${activeView === 'categories' ? 'active' : ''}`}
-                        onClick={() => history.push('/admin/categories')}
+                        onClick={() => handleNavigate('/admin/categories')}
                     >
                         <span className="nav-icon">🗂️</span>
                         <span className="nav-label">Danh mục</span>
@@ -474,7 +503,7 @@ const AdminPanel = () => {
 
                     <button 
                         className={`nav-item ${activeView === 'promotions' ? 'active' : ''}`}
-                        onClick={() => history.push('/admin/promotions')}
+                        onClick={() => handleNavigate('/admin/promotions')}
                     >
                         <span className="nav-icon">🎯</span>
                         <span className="nav-label">Banner khuyến mãi</span>
@@ -482,7 +511,7 @@ const AdminPanel = () => {
 
                     <button 
                         className={`nav-item ${activeView === 'qr' ? 'active' : ''}`}
-                        onClick={() => history.push('/admin/qr')}
+                        onClick={() => handleNavigate('/admin/qr')}
                     >
                         <span className="nav-icon">🔗</span>
                         <span className="nav-label">Tạo QR Code</span>
@@ -501,10 +530,38 @@ const AdminPanel = () => {
                 </div>
             </aside>
 
+            {isMobile && sidebarOpen && (
+                <div
+                    className="sidebar-backdrop"
+                    onClick={() => setSidebarOpen(false)}
+                    role="presentation"
+                />
+            )}
+
             {/* Main Content */}
             <main className="admin-main-content">
                 {/* Top Bar */}
                 <div className="admin-topbar">
+                    {isMobile && (
+                        <button
+                            className="mobile-menu-btn"
+                            type="button"
+                            onClick={() => setSidebarOpen(true)}
+                            aria-label="Mở menu quản trị"
+                        >
+                            ☰
+                        </button>
+                    )}
+                    {!isMobile && !sidebarOpen && (
+                        <button
+                            className="sidebar-reopen-btn"
+                            type="button"
+                            onClick={() => setSidebarOpen(true)}
+                            aria-label="Mở lại thanh điều hướng"
+                        >
+                            ☰
+                        </button>
+                    )}
                     <div className="topbar-left">
                         <h1 className="page-title">
                             {activeView === 'dashboard' && '📊 Tổng quan'}
