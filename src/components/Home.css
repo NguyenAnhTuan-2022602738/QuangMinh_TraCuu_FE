@@ -294,6 +294,164 @@
     box-shadow: var(--shadow-lg);
 }
 
+/* Promotion Popup */
+.promo-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(13, 18, 32, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    z-index: 1200;
+    backdrop-filter: blur(6px);
+    animation: popupFadeIn 0.3s ease forwards;
+}
+
+.promo-popup-card {
+    width: min(520px, 94vw);
+    background: #ffffff;
+    border-radius: 1.5rem;
+    padding: 2.5rem;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: popupSlideUp 0.35s ease forwards;
+}
+
+.promo-popup-card--with-image {
+    color: #fff;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.promo-popup-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    border: none;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.promo-popup-card--with-image .promo-popup-close {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.promo-popup-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.promo-popup-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(255, 140, 0, 0.15);
+    color: #c05621;
+    padding: 0.4rem 1.2rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.promo-popup-card--with-image .promo-popup-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.promo-popup-title {
+    font-size: 1.9rem;
+    margin: 0;
+}
+
+.promo-popup-subtitle {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: rgba(26, 32, 44, 0.8);
+}
+
+.promo-popup-card--with-image .promo-popup-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.promo-popup-highlight {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+}
+
+.popup-highlight-value {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.popup-highlight-note {
+    font-size: 1rem;
+    opacity: 0.85;
+}
+
+.promo-popup-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.promo-popup-actions .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.promo-popup-dismiss {
+    border: none;
+    background: transparent;
+    color: var(--gray-dark, #4a4a4a);
+    font-size: 0.95rem;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0.5rem 0;
+}
+
+.promo-popup-card--with-image .promo-popup-dismiss {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.promo-popup-card--with-image .btn-outline {
+    color: white;
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes popupFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popupSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .hero {
@@ -351,6 +509,10 @@
     .cta-card {
         padding: 2.4rem;
     }
+
+    .promo-popup-card {
+        padding: 2rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -396,6 +558,18 @@
     .feature-card {
         border-radius: 1.05rem;
         box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .promo-popup-overlay {
+        padding: 1rem;
+    }
+
+    .promo-popup-card {
+        padding: 1.75rem;
+    }
+
+    .promo-popup-title {
+        font-size: 1.5rem;
     }
     
     .cta-card {

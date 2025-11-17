@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCustomer } from '../context/CustomerContext';
 import './Home.css';
@@ -24,11 +24,15 @@ const DEFAULT_PROMOTION = {
     highlightNote: 'Giảm trực tiếp'
 };
 
+const PROMO_POPUP_LAST_SHOWN_KEY = 'qm_promo_popup_last_shown_v1';
+const PROMO_POPUP_INTERVAL_MS = 60_000;
+
 const Home = () => {
     const { customerType, locked } = useCustomer();
     const [promotion, setPromotion] = useState(DEFAULT_PROMOTION);
     const [promotionLoading, setPromotionLoading] = useState(true);
     const [promotionError, setPromotionError] = useState('');
+    const [showPromotionPopup, setShowPromotionPopup] = useState(false);
     
     // Check if we're on a price-type specific path
     const priceTypePrefix = locked ? `/${customerType}` : '';
@@ -81,6 +85,88 @@ const Home = () => {
         };
     }, []);
 
+    // Automatically opens the promotion popup for active campaigns when the page loads.
+    useEffect(() => {
+        if (promotionLoading || promotion?.isActive === false) {
+            return;
+        }
+
+        if (typeof window === 'undefined') {
+            return;
+        }
+
+        let lastShown = 0;
+        try {
+            lastShown = Number(sessionStorage.getItem(PROMO_POPUP_LAST_SHOWN_KEY)) || 0;
+        } catch (error) {
+            console.warn('Không thể đọc thời gian popup khuyến mãi', error);
+        }
+
+        if (!lastShown) {
+            const timer = setTimeout(() => setShowPromotionPopup(true), 700);
+            return () => clearTimeout(timer);
+        }
+    }, [promotion?.isActive, promotionLoading]);
+
+    // Re-open the popup every PROMO_POPUP_INTERVAL_MS when it has been dismissed.
+    useEffect(() => {
+        if (promotionLoading || promotion?.isActive === false) {
+            return undefined;
+        }
+
+        if (typeof window === 'undefined') {
+            return undefined;
+        }
+
+        const interval = setInterval(() => {
+            if (showPromotionPopup) {
+                return;
+            }
+
+            let lastShown = 0;
+            try {
+                lastShown = Number(sessionStorage.getItem(PROMO_POPUP_LAST_SHOWN_KEY)) || 0;
+            } catch (error) {
+                console.warn('Không thể đọc thời gian popup khuyến mãi', error);
+            }
+
+            if (!lastShown || Date.now() - lastShown >= PROMO_POPUP_INTERVAL_MS) {
+                setShowPromotionPopup(true);
+            }
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [promotion?.isActive, promotionLoading, showPromotionPopup]);
+
+    useEffect(() => {
+        if (!showPromotionPopup || typeof window === 'undefined') {
+            return;
+        }
+
+        try {
+            sessionStorage.setItem(PROMO_POPUP_LAST_SHOWN_KEY, String(Date.now()));
+        } catch (error) {
+            console.warn('Không thể ghi thời gian popup khuyến mãi', error);
+        }
+    }, [showPromotionPopup]);
+
+    const handleDismissPromotionPopup = useCallback(() => {
+        setShowPromotionPopup(false);
+    }, []);
+
+    useEffect(() => {
+        if (showPromotionPopup) {
+            const onKeyDown = (event) => {
+                if (event.key === 'Escape') {
+                    handleDismissPromotionPopup();
+                }
+            };
+
+            window.addEventListener('keydown', onKeyDown);
+            return () => window.removeEventListener('keydown', onKeyDown);
+        }
+    }, [handleDismissPromotionPopup, showPromotionPopup]);
+
     // Normalizes the overlay opacity value coming from the server/admin UI.
     const overlayOpacity = useMemo(() => {
         const value = Number(promotion?.overlayOpacity);
@@ -127,20 +213,23 @@ const Home = () => {
     };
 
     // Renders an action button based on admin-provided configuration.
-    const renderActionButton = (action, variant, fallback) => {
+    const renderActionButton = (action, variant, fallback, options = {}) => {
         const payload = action || {};
         const label = payload.label?.trim() || fallback.label;
         const link = payload.link?.trim() || fallback.link;
+        const extraClassName = options.className ? ` ${options.className}` : '';
+        const onClick = options.onClick;
 
         if (!label || !link) {
             return null;
         }
 
-        const className = `btn ${variant === 'primary' ? 'btn-primary btn-lg' : variant === 'outline' ? 'btn-outline btn-lg' : 'btn-secondary btn-lg'}`;
+        const baseClass = `btn ${variant === 'primary' ? 'btn-primary btn-lg' : variant === 'outline' ? 'btn-outline btn-lg' : 'btn-secondary btn-lg'}`;
+        const className = `${baseClass}${extraClassName}`.trim();
 
         if (/^https?:\/\//i.test(link)) {
             return (
-                <a href={link} className={className} target="_blank" rel="noopener noreferrer">
+                <a href={link} className={className} target="_blank" rel="noopener noreferrer" onClick={onClick}>
                     {label}
                 </a>
             );
@@ -148,11 +237,17 @@ const Home = () => {
 
         const internalLink = buildInternalLink(link);
         return (
-            <Link to={internalLink} className={className}>
+            <Link to={internalLink} className={className} onClick={onClick}>
                 {label}
             </Link>
         );
     };
+
+    const popupBackgroundStyle = promotion?.backgroundImageUrl
+        ? {
+            backgroundImage: `linear-gradient(rgba(17, 17, 17, 0.5), rgba(17, 17, 17, 0.8)), url(${promotion.backgroundImageUrl})`
+        }
+        : {};
 
     return (
         <div className="home">
@@ -270,6 +365,38 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {showPromotionPopup && (
+                <div className="promo-popup-overlay" role="dialog" aria-modal="true" aria-label="Thông tin khuyến mãi nổi bật">
+                    <div className={`promo-popup-card ${promotion?.backgroundImageUrl ? 'promo-popup-card--with-image' : ''}`} style={popupBackgroundStyle}>
+                        <button type="button" className="promo-popup-close" onClick={() => handleDismissPromotionPopup()} aria-label="Đóng khuyến mãi">
+                            ✕
+                        </button>
+                        <div className="promo-popup-body">
+                            <div className="promo-popup-badge">{promotion?.badgeText || DEFAULT_PROMOTION.badgeText}</div>
+                            <h3 className="promo-popup-title">{promotion?.title || DEFAULT_PROMOTION.title}</h3>
+                            <p className="promo-popup-subtitle">{promotion?.subtitle || DEFAULT_PROMOTION.subtitle}</p>
+                            <div className="promo-popup-highlight">
+                                <span className="popup-highlight-value">{promotion?.highlightValue || DEFAULT_PROMOTION.highlightValue}</span>
+                                <span className="popup-highlight-note">{promotion?.highlightNote || DEFAULT_PROMOTION.highlightNote}</span>
+                            </div>
+                        </div>
+                        <div className="promo-popup-actions">
+                            {renderActionButton(promotion?.primaryAction, 'primary', DEFAULT_PROMOTION.primaryAction, {
+                                className: 'popup-primary',
+                                onClick: () => handleDismissPromotionPopup()
+                            })}
+                            {renderActionButton(promotion?.secondaryAction, 'outline', DEFAULT_PROMOTION.secondaryAction, {
+                                className: 'popup-secondary',
+                                onClick: () => handleDismissPromotionPopup()
+                            })}
+                            <button type="button" className="promo-popup-dismiss" onClick={() => handleDismissPromotionPopup()}>
+                                Bỏ qua khuyến mãi này
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
