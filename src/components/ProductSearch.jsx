@@ -212,9 +212,20 @@ const ProductSearch = () => {
                                             }
                                         }}
                                     >
-                                        <div className="result-image-placeholder">
-                                            <span className="placeholder-icon">📷</span>
-                                        </div>
+                                        {product.image && (
+                                            <div className="result-image-placeholder">
+                                                <img
+                                                    src={product.image}
+                                                    alt={product.name}
+                                                    onError={(e) => {
+                                                        const container = e.currentTarget.closest('.result-image-placeholder');
+                                                        if (container) {
+                                                            container.style.display = 'none';
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        )}
                                         <div className="result-content">
                                             <div className="result-header">
                                                 <span className="result-code">{product.code}</span>

@@ -286,9 +286,20 @@ const ProductCatalogByCategory = () => {
                                 className="product-card"
                                 onClick={() => history.push(`/product/${product.code}`)}
                             >
-                                <div className="product-image-placeholder">
-                                    <span className="placeholder-icon">📦</span>
-                                </div>
+                                {product.image && (
+                                    <div className="product-image-placeholder">
+                                        <img
+                                            src={product.image}
+                                            alt={product.name}
+                                            onError={(e) => {
+                                                const container = e.currentTarget.closest('.product-image-placeholder');
+                                                if (container) {
+                                                    container.style.display = 'none';
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                )}
                                 <div className="product-content">
                                     <div className="product-header">
                                         <span className="product-code">{product.code}</span>
