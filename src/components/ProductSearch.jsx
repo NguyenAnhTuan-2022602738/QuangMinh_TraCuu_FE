@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCustomer } from '../context/CustomerContext';
 import axios from 'axios';
 import './ProductSearch.css';
@@ -27,9 +27,10 @@ const ProductSearch = () => {
         };
     }, [showModal]);
 
-    const handleSearch = async (e) => {
+    const handleSearch = useCallback(async (e) => {
         e.preventDefault();
-        if (!searchTerm.trim()) {
+        const normalizedSearch = searchTerm.trim();
+        if (!normalizedSearch) {
             setError('Vui lòng nhập mã hoặc tên sản phẩm');
             return;
         }
@@ -41,28 +42,28 @@ const ProductSearch = () => {
             setShowModal(false);
             setSelectedProduct(null);
             
-            // Fetch all products with current price type
-            const response = await axios.get(`${API_URL}/products/${customerType}?limit=all`);
-            const allProducts = Array.isArray(response.data)
-                ? response.data
-                : Array.isArray(response.data?.products)
-                    ? response.data.products
+            const response = await axios.get(`${API_URL}/products/${customerType}`, {
+                params: {
+                    search: normalizedSearch,
+                    limit: 100,
+                    page: 1
+                }
+            });
+
+            const productsPayload = Array.isArray(response.data?.products)
+                ? response.data.products
+                : Array.isArray(response.data)
+                    ? response.data
                     : [];
-            
-            // Filter by search term
-            const filtered = allProducts.filter(p => 
-                (p.code && String(p.code).toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (p.name && String(p.name).toLowerCase().includes(searchTerm.toLowerCase()))
-            );
-            
-            setSearchResults(filtered);
+
+            setSearchResults(productsPayload);
         } catch (err) {
             setError('Không thể tìm kiếm sản phẩm. Vui lòng thử lại.');
             console.error('Search error:', err);
         } finally {
             setLoading(false);
         }
-    };
+    }, [customerType, searchTerm]);
 
     const handleResultClick = (product) => {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop || 0;
@@ -217,6 +218,8 @@ const ProductSearch = () => {
                                                 <img
                                                     src={product.image}
                                                     alt={product.name}
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     onError={(e) => {
                                                         const container = e.currentTarget.closest('.result-image-placeholder');
                                                         if (container) {
@@ -314,6 +317,8 @@ const ProductSearch = () => {
                                     src={selectedProduct.image} 
                                     alt={selectedProduct.name}
                                     className="modal-product-image"
+                                    loading="lazy"
+                                    decoding="async"
                                     onError={(e) => {
                                         e.target.style.display = 'none';
                                         e.target.parentElement.style.display = 'none';

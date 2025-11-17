@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import './ProductCatalogByCategory.css';
 
@@ -82,14 +82,15 @@ const ProductCatalogByCategory = () => {
         }
     };
 
-    const filteredProducts = (products || []).filter(product => {
-        const searchLower = searchTerm.toLowerCase();
-        return (
+    const filteredProducts = useMemo(() => {
+        const searchLower = searchTerm.trim().toLowerCase();
+        if (!searchLower) return products || [];
+        return (products || []).filter(product =>
             product.code?.toLowerCase().includes(searchLower) ||
             product.name?.toLowerCase().includes(searchLower) ||
             product.subcategory?.toLowerCase().includes(searchLower)
         );
-    });
+    }, [products, searchTerm]);
 
     useEffect(() => {
         fetchSubcategories();
@@ -291,6 +292,8 @@ const ProductCatalogByCategory = () => {
                                         <img
                                             src={product.image}
                                             alt={product.name}
+                                            loading="lazy"
+                                            decoding="async"
                                             onError={(e) => {
                                                 const container = e.currentTarget.closest('.product-image-placeholder');
                                                 if (container) {

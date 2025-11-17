@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useCustomer } from '../context/CustomerContext';
 import { useHistory, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -211,15 +211,22 @@ const ProductCatalog = () => {
     };
 
     // Filter products by search term
-    const filteredProducts = (products || []).filter(product => {
-        const matchesSearch = (product.name && String(product.name).toLowerCase().includes(searchTerm.toLowerCase())) ||
-                            (product.code && String(product.code).toLowerCase().includes(searchTerm.toLowerCase()));
-        return matchesSearch;
-    });
+    const filteredProducts = useMemo(() => {
+        const normalizedSearch = searchTerm.trim().toLowerCase();
+        if (!normalizedSearch) return products || [];
+        return (products || []).filter(product => {
+            const nameMatch = product.name && String(product.name).toLowerCase().includes(normalizedSearch);
+            const codeMatch = product.code && String(product.code).toLowerCase().includes(normalizedSearch);
+            return nameMatch || codeMatch;
+        });
+    }, [products, searchTerm]);
 
-    const filteredParentCategories = (parentCategories || [])
-        .filter((category) => Boolean(category))
-        .filter((category) => category.toLowerCase().includes(categorySearch.toLowerCase()));
+    const filteredParentCategories = useMemo(() => {
+        const normalizedFilter = categorySearch.trim().toLowerCase();
+        return (parentCategories || [])
+            .filter(Boolean)
+            .filter((category) => category.toLowerCase().includes(normalizedFilter));
+    }, [parentCategories, categorySearch]);
 
     const formatPrice = (price) => {
         if (price == null || price === 0) return 'Đang cập nhật';
@@ -500,6 +507,8 @@ const ProductCatalog = () => {
                                         <img
                                             src={product.image}
                                             alt={product.name}
+                                            loading="lazy"
+                                            decoding="async"
                                             onError={(e) => {
                                                 const container = e.currentTarget.closest('.product-image-placeholder');
                                                 if (container) {
@@ -624,6 +633,8 @@ const ProductCatalog = () => {
                                     src={selectedProduct.image} 
                                     alt={selectedProduct.name}
                                     className="modal-product-image"
+                                    loading="lazy"
+                                    decoding="async"
                                     onError={(e) => {
                                         e.target.style.display = 'none';
                                         e.target.parentElement.style.display = 'none';
