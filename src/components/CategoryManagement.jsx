@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import './CategoryManagement.css';
@@ -23,8 +23,23 @@ const CategoryManagement = ({ onDataChanged }) => {
         description: ''
     });
 
+    // Get category description based on name
+    const getCategoryDescription = useCallback((categoryName) => {
+        const descriptions = {
+            'PHỤ TÙNG ĐỘNG CƠ': 'Các bộ phận quan trọng của động cơ xe máy',
+            'PHỤ TÙNG PHANH': 'Hệ thống phanh và các bộ phận liên quan',
+            'PHỤ TÙNG ĐIỆN': 'Bộ phận điện tử và hệ thống điện',
+            'PHỤ TÙNG KHUNG': 'Khung xe và các bộ phận kết cấu',
+            'PHỤ TÙNG TREO': 'Hệ thống treo và giảm xóc',
+            'PHỤ TÙNG TRUYỀN ĐỘNG': 'Hộp số và hệ thống truyền động',
+            'PHỤ TÙNG LỌC': 'Các loại bộ lọc (dầu, gió, nhiên liệu)',
+            'PHỤ TÙNG KHÁC': 'Các phụ tùng khác'
+        };
+        return descriptions[categoryName] || 'Danh mục phụ tùng xe máy';
+    }, []);
+
     // Fetch all categories
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         try {
             setLoading(true);
             const response = await axios.get(`${API_URL}/products/categories/parent`);
@@ -69,22 +84,7 @@ const CategoryManagement = ({ onDataChanged }) => {
         } finally {
             setLoading(false);
         }
-    };
-
-    // Get category description based on name
-    const getCategoryDescription = (categoryName) => {
-        const descriptions = {
-            'PHỤ TÙNG ĐỘNG CƠ': 'Các bộ phận quan trọng của động cơ xe máy',
-            'PHỤ TÙNG PHANH': 'Hệ thống phanh và các bộ phận liên quan',
-            'PHỤ TÙNG ĐIỆN': 'Bộ phận điện tử và hệ thống điện',
-            'PHỤ TÙNG KHUNG': 'Khung xe và các bộ phận kết cấu',
-            'PHỤ TÙNG TREO': 'Hệ thống treo và giảm xóc',
-            'PHỤ TÙNG TRUYỀN ĐỘNG': 'Hộp số và hệ thống truyền động',
-            'PHỤ TÙNG LỌC': 'Các loại bộ lọc (dầu, gió, nhiên liệu)',
-            'PHỤ TÙNG KHÁC': 'Các phụ tùng khác'
-        };
-        return descriptions[categoryName] || 'Danh mục phụ tùng xe máy';
-    };
+    }, [API_URL, getCategoryDescription]);
 
     // Load products for a specific category
     const loadCategoryProducts = async (categoryName) => {
@@ -213,7 +213,7 @@ const CategoryManagement = ({ onDataChanged }) => {
     const [showMoveModal, setShowMoveModal] = useState(false);
     const [moveData, setMoveData] = useState({ productId: '', newCategory: '' });
     const [selectedProductsForMove, setSelectedProductsForMove] = useState([]);
-    const [initialLoading, setInitialLoading] = useState(false);
+    const [, setInitialLoading] = useState(false);
 
     // Handle merge categories
     const handleMergeCategories = async () => {
@@ -418,7 +418,7 @@ const CategoryManagement = ({ onDataChanged }) => {
 
     useEffect(() => {
         fetchCategories();
-    }, []);
+    }, [fetchCategories]);
 
     if (loading) {
         return (
