@@ -213,7 +213,7 @@ const CategoryManagement = ({ onDataChanged }) => {
     const [showMoveModal, setShowMoveModal] = useState(false);
     const [moveData, setMoveData] = useState({ productId: '', newCategory: '' });
     const [selectedProductsForMove, setSelectedProductsForMove] = useState([]);
-    const [initialLoading, setInitialLoading] = useState(false);
+    // const [initialLoading, setInitialLoading] = useState(false);
 
     // Handle merge categories
     const handleMergeCategories = async () => {
