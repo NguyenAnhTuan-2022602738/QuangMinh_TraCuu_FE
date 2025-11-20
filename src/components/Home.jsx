@@ -33,6 +33,7 @@ const Home = () => {
     const [promotionLoading, setPromotionLoading] = useState(true);
     const [promotionError, setPromotionError] = useState('');
     const [showPromotionPopup, setShowPromotionPopup] = useState(false);
+    const [countdown, setCountdown] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
     
     // Check if we're on a price-type specific path
     const priceTypePrefix = locked ? `/${customerType}` : '';
@@ -167,6 +168,35 @@ const Home = () => {
         }
     }, [handleDismissPromotionPopup, showPromotionPopup]);
 
+    // Countdown timer effect
+    useEffect(() => {
+        const targetDate = new Date();
+        targetDate.setDate(targetDate.getDate() + 7); // 7 days from now
+        targetDate.setHours(23, 59, 59, 999);
+
+        const updateCountdown = () => {
+            const now = new Date().getTime();
+            const distance = targetDate.getTime() - now;
+
+            if (distance < 0) {
+                setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            setCountdown({ days, hours, minutes, seconds });
+        };
+
+        updateCountdown();
+        const interval = setInterval(updateCountdown, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
     // Normalizes the overlay opacity value coming from the server/admin UI.
     const overlayOpacity = useMemo(() => {
         const value = Number(promotion?.overlayOpacity);
@@ -287,7 +317,9 @@ const Home = () => {
                     <div className="container">
                         <div className={promotionCardClasses} style={promotionBackgroundStyle}>
                             <div className="promo-content">
-                                <h2 className="promo-title">{promotion?.title || DEFAULT_PROMOTION.title}</h2>
+                                <h2 className="promo-title" data-text={promotion?.title || DEFAULT_PROMOTION.title}>
+                                    {promotion?.title || DEFAULT_PROMOTION.title}
+                                </h2>
                                 <p className="promo-subtitle">
                                     {promotion?.subtitle || DEFAULT_PROMOTION.subtitle}
                                 </p>
@@ -297,9 +329,39 @@ const Home = () => {
                                 </div>
                             </div>
                             <div className="promo-highlight">
+                                <div className="promo-sparkles">
+                                    {[...Array(8)].map((_, i) => (
+                                        <div key={`sparkle-${i}`} className="sparkle" style={{
+                                            top: `${Math.random() * 100}%`,
+                                            left: `${Math.random() * 100}%`,
+                                            animationDelay: `${Math.random() * 2}s`
+                                        }}>✨</div>
+                                    ))}
+                                </div>
                                 <div className="promo-badge">{promotion?.badgeText || DEFAULT_PROMOTION.badgeText}</div>
-                                <span className="promo-percent">{promotion?.highlightValue || DEFAULT_PROMOTION.highlightValue}</span>
+                                <span className="promo-percent promo-mega-text">{promotion?.highlightValue || DEFAULT_PROMOTION.highlightValue}</span>
                                 <span className="promo-note">{promotion?.highlightNote || DEFAULT_PROMOTION.highlightNote}</span>
+                                <div className="promo-banner-countdown">
+                                    <div className="banner-countdown-label">⏰ Kết thúc sau:</div>
+                                    <div className="banner-countdown-grid">
+                                        <div className="banner-countdown-box">
+                                            <span className="banner-countdown-num">{String(countdown.days).padStart(2, '0')}</span>
+                                            <span className="banner-countdown-txt">Ngày</span>
+                                        </div>
+                                        <div className="banner-countdown-box">
+                                            <span className="banner-countdown-num">{String(countdown.hours).padStart(2, '0')}</span>
+                                            <span className="banner-countdown-txt">Giờ</span>
+                                        </div>
+                                        <div className="banner-countdown-box">
+                                            <span className="banner-countdown-num">{String(countdown.minutes).padStart(2, '0')}</span>
+                                            <span className="banner-countdown-txt">Phút</span>
+                                        </div>
+                                        <div className="banner-countdown-box">
+                                            <span className="banner-countdown-num promo-blink">{String(countdown.seconds).padStart(2, '0')}</span>
+                                            <span className="banner-countdown-txt">Giây</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         {promotionError && (
@@ -368,17 +430,64 @@ const Home = () => {
 
             {showPromotionPopup && (
                 <div className="promo-popup-overlay" role="dialog" aria-modal="true" aria-label="Thông tin khuyến mãi nổi bật">
+                    {/* Confetti Effect */}
+                    <div className="confetti-container">
+                        {[...Array(50)].map((_, i) => (
+                            <div key={`confetti-${i}`} className="confetti" style={{
+                                left: `${Math.random() * 100}%`,
+                                animationDelay: `${Math.random() * 3}s`,
+                                animationDuration: `${2 + Math.random() * 3}s`,
+                                backgroundColor: ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4d96ff', '#ff8787'][Math.floor(Math.random() * 5)]
+                            }} />
+                        ))}
+                    </div>
+                    {/* Snowflakes Effect */}
+                    <div className="snowflakes-container">
+                        {[...Array(30)].map((_, i) => (
+                            <div key={`snow-${i}`} className="snowflake" style={{
+                                left: `${Math.random() * 100}%`,
+                                animationDelay: `${Math.random() * 5}s`,
+                                animationDuration: `${5 + Math.random() * 10}s`,
+                                fontSize: `${10 + Math.random() * 10}px`,
+                                opacity: 0.3 + Math.random() * 0.7
+                            }}>❄</div>
+                        ))}
+                    </div>
                     <div className={`promo-popup-card ${promotion?.backgroundImageUrl ? 'promo-popup-card--with-image' : ''}`} style={popupBackgroundStyle}>
                         <button type="button" className="promo-popup-close" onClick={() => handleDismissPromotionPopup()} aria-label="Đóng khuyến mãi">
                             ✕
                         </button>
                         <div className="promo-popup-body">
-                            <div className="promo-popup-badge">{promotion?.badgeText || DEFAULT_PROMOTION.badgeText}</div>
-                            <h3 className="promo-popup-title">{promotion?.title || DEFAULT_PROMOTION.title}</h3>
+                            <div className="promo-popup-badge promo-pulse">{promotion?.badgeText || DEFAULT_PROMOTION.badgeText}</div>
+                            <h3 className="promo-popup-title promo-glow">{promotion?.title || DEFAULT_PROMOTION.title}</h3>
                             <p className="promo-popup-subtitle">{promotion?.subtitle || DEFAULT_PROMOTION.subtitle}</p>
                             <div className="promo-popup-highlight">
-                                <span className="popup-highlight-value">{promotion?.highlightValue || DEFAULT_PROMOTION.highlightValue}</span>
+                                <span className="popup-highlight-value promo-shine">{promotion?.highlightValue || DEFAULT_PROMOTION.highlightValue}</span>
                                 <span className="popup-highlight-note">{promotion?.highlightNote || DEFAULT_PROMOTION.highlightNote}</span>
+                            </div>
+                            <div className="promo-countdown">
+                                <div className="countdown-label">⏰ Ưu đãi kết thúc sau:</div>
+                                <div className="countdown-timer">
+                                    <div className="countdown-item">
+                                        <span className="countdown-value">{String(countdown.days).padStart(2, '0')}</span>
+                                        <span className="countdown-unit">Ngày</span>
+                                    </div>
+                                    <div className="countdown-separator">:</div>
+                                    <div className="countdown-item">
+                                        <span className="countdown-value">{String(countdown.hours).padStart(2, '0')}</span>
+                                        <span className="countdown-unit">Giờ</span>
+                                    </div>
+                                    <div className="countdown-separator">:</div>
+                                    <div className="countdown-item">
+                                        <span className="countdown-value">{String(countdown.minutes).padStart(2, '0')}</span>
+                                        <span className="countdown-unit">Phút</span>
+                                    </div>
+                                    <div className="countdown-separator">:</div>
+                                    <div className="countdown-item">
+                                        <span className="countdown-value promo-blink">{String(countdown.seconds).padStart(2, '0')}</span>
+                                        <span className="countdown-unit">Giây</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className="promo-popup-actions">

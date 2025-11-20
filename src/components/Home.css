@@ -76,21 +76,95 @@
 /* Promotion Banner Section */
 .promo-banner {
     padding: 3.5rem 0;
-    background: linear-gradient(135deg, rgba(255, 245, 235, 0.9) 0%, rgba(255, 255, 255, 1) 60%, rgba(255, 245, 235, 0.9) 100%);
+    background: linear-gradient(135deg, 
+        rgba(255, 107, 107, 0.15) 0%, 
+        rgba(255, 217, 61, 0.15) 25%,
+        rgba(107, 207, 127, 0.15) 50%,
+        rgba(77, 150, 255, 0.15) 75%,
+        rgba(255, 135, 135, 0.15) 100%);
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.promo-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 20% 50%, rgba(255, 140, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(255, 69, 0, 0.1) 0%, transparent 50%);
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+
+.promo-banner::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(255, 255, 255, 0.03) 20px,
+        rgba(255, 255, 255, 0.03) 40px
+    );
+    animation: stripesMove 20s linear infinite;
 }
 
 .promo-card {
-    background: white;
+    background: linear-gradient(135deg, #ffffff 0%, #fffbf5 100%);
     border-radius: 1.5rem;
     padding: 3rem 3.25rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    box-shadow: 0 24px 60px rgba(238, 121, 17, 0.15);
-    border: 1px solid rgba(255, 197, 112, 0.3);
+    box-shadow: 0 24px 60px rgba(238, 121, 17, 0.2),
+                0 0 0 1px rgba(255, 140, 0, 0.1) inset,
+                0 8px 16px rgba(255, 69, 0, 0.1);
+    border: 3px solid transparent;
+    background-clip: padding-box;
     position: relative;
     overflow: hidden;
+    animation: cardPulse 3s ease-in-out infinite;
+}
+
+.promo-card::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 1.5rem;
+    padding: 3px;
+    background: linear-gradient(45deg, 
+        #ff6b6b 0%, 
+        #ffd93d 25%, 
+        #6bcf7f 50%, 
+        #4d96ff 75%, 
+        #ff6b6b 100%);
+    background-size: 300% 300%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: borderRotate 4s linear infinite;
+    z-index: -1;
+}
+
+.promo-card::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 150%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: radialPulse 3s ease-in-out infinite;
 }
 
 .promo-card--with-image {
@@ -139,8 +213,30 @@
 
 .promo-title {
     font-size: 2.2rem;
-    color: var(--primary-dark);
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8c00 50%, #ffd700 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 1.25rem;
+    animation: titleGradientShift 3s ease infinite, promoGlow 2s ease-in-out infinite;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    position: relative;
+}
+
+.promo-title::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: -1;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8c00 50%, #ffd700 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: blur(15px);
+    opacity: 0.5;
 }
 
 .promo-subtitle {
@@ -159,14 +255,20 @@
 
 .promo-highlight {
     flex: 0 0 220px;
-    background: linear-gradient(160deg, #ffb347 0%, #ff8c00 100%);
+    background: linear-gradient(160deg, #ff6b6b 0%, #ff8c00 30%, #ffd93d 100%);
     color: white;
     border-radius: 1.25rem;
     padding: 2.25rem 1.75rem;
     text-align: center;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 20px 45px rgba(255, 140, 0, 0.45);
+    box-shadow: 0 20px 45px rgba(255, 69, 0, 0.5),
+                0 0 60px rgba(255, 140, 0, 0.3),
+                inset 0 -2px 10px rgba(0, 0, 0, 0.2),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+    animation: promoFloat 3s ease-in-out infinite, highlightRotate 10s linear infinite;
+    transform-style: preserve-3d;
+    perspective: 1000px;
 }
 
 .promo-highlight::before {
@@ -189,6 +291,7 @@
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 1.5px;
+    animation: promoPulse 2s ease-in-out infinite;
 }
 
 .promo-percent {
@@ -196,11 +299,91 @@
     font-size: 3.5rem;
     font-weight: 700;
     margin: 1.25rem 0 0.5rem;
+    animation: promoShine 3s linear infinite;
+    background: linear-gradient(
+        90deg,
+        #fff 0%,
+        #ffd700 50%,
+        #fff 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.promo-mega-text {
+    font-size: 5rem !important;
+    letter-spacing: -2px;
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.6),
+                 0 0 60px rgba(255, 215, 0, 0.4);
+    transform: scale(1.1);
+    margin: 1rem 0 0.75rem !important;
 }
 
 .promo-note {
     font-size: 1rem;
     opacity: 0.9;
+}
+
+.promo-sparkles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.sparkle {
+    position: absolute;
+    font-size: 1.2rem;
+    animation: sparkleFloat 3s ease-in-out infinite;
+    opacity: 0;
+}
+
+.promo-banner-countdown {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.banner-countdown-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    opacity: 0.95;
+}
+
+.banner-countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+}
+
+.banner-countdown-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.25rem;
+    backdrop-filter: blur(5px);
+}
+
+.banner-countdown-num {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.banner-countdown-txt {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    opacity: 0.85;
+    font-weight: 600;
 }
 
 .promo-error {
@@ -392,18 +575,28 @@
 
 .promo-popup-highlight {
     display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0;
+    flex-wrap: wrap;
 }
 
 .popup-highlight-value {
-    font-size: 3rem;
-    font-weight: 700;
+    font-size: 6rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -3px;
+    text-shadow: 0 0 40px rgba(255, 215, 0, 0.8),
+                 0 0 80px rgba(255, 215, 0, 0.5),
+                 0 5px 20px rgba(0, 0, 0, 0.3);
+    transform: scale(1.15);
+    display: inline-block;
 }
 
 .popup-highlight-note {
-    font-size: 1rem;
-    opacity: 0.85;
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 600;
 }
 
 .promo-popup-actions {
@@ -436,6 +629,214 @@
     border-color: rgba(255, 255, 255, 0.7);
 }
 
+/* Countdown Timer */
+.promo-countdown {
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1) 0%, rgba(255, 69, 0, 0.1) 100%);
+    border: 2px solid rgba(255, 140, 0, 0.3);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.promo-popup-card--with-image .promo-countdown {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.countdown-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.75rem;
+    color: #c05621;
+}
+
+.promo-popup-card--with-image .countdown-label {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.countdown-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    min-width: 60px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.promo-popup-card--with-image .countdown-item {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.countdown-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #ff4500;
+}
+
+.promo-popup-card--with-image .countdown-value {
+    color: #fff;
+}
+
+.countdown-unit {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.promo-popup-card--with-image .countdown-unit {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.countdown-separator {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ff8c00;
+    margin: 0 -0.15rem;
+}
+
+.promo-popup-card--with-image .countdown-separator {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Countdown Timer */
+.promo-countdown {
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1) 0%, rgba(255, 69, 0, 0.1) 100%);
+    border: 2px solid rgba(255, 140, 0, 0.3);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.promo-popup-card--with-image .promo-countdown {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.countdown-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.75rem;
+    color: #c05621;
+}
+
+.promo-popup-card--with-image .countdown-label {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.countdown-timer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0.75rem;
+    padding: 0.75rem 0.85rem;
+    min-width: 60px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.promo-popup-card--with-image .countdown-item {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.countdown-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: #ff4500;
+}
+
+.promo-popup-card--with-image .countdown-value {
+    color: #fff;
+}
+
+.countdown-unit {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.promo-popup-card--with-image .countdown-unit {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.countdown-separator {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #ff8c00;
+    margin: 0 -0.15rem;
+}
+
+.promo-popup-card--with-image .countdown-separator {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Confetti Effect */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1201;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff6b6b;
+    animation: confettiFall linear infinite;
+    top: -10px;
+}
+
+/* Snowflakes Effect */
+.snowflakes-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1202;
+    overflow: hidden;
+}
+
+.snowflake {
+    position: absolute;
+    top: -20px;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+    animation: snowfall linear infinite;
+    user-select: none;
+}
+
 @keyframes popupFadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -450,6 +851,237 @@
         opacity: 1;
         transform: translateY(0) scale(1);
     }
+}
+
+@keyframes promoPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(255, 140, 0, 0);
+    }
+}
+
+@keyframes promoGlow {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(255, 140, 0, 0.5),
+                     0 0 20px rgba(255, 140, 0, 0.3),
+                     0 0 30px rgba(255, 140, 0, 0.2);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(255, 140, 0, 0.8),
+                     0 0 30px rgba(255, 140, 0, 0.6),
+                     0 0 40px rgba(255, 140, 0, 0.4);
+    }
+}
+
+@keyframes promoShine {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes promoBlink {
+    0%, 49%, 100% {
+        opacity: 1;
+        color: #ff4500;
+    }
+    50%, 99% {
+        opacity: 0.4;
+        color: #ff8c00;
+    }
+}
+
+.promo-pulse {
+    animation: promoPulse 2s ease-in-out infinite;
+}
+
+.promo-glow {
+    animation: promoGlow 2s ease-in-out infinite;
+}
+
+.promo-shine {
+    background: linear-gradient(
+        90deg,
+        currentColor 0%,
+        #ffd700 50%,
+        currentColor 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: promoShine 3s linear infinite;
+}
+
+.promo-blink {
+    animation: promoBlink 1s ease-in-out infinite;
+}
+
+@keyframes promoPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(255, 140, 0, 0);
+    }
+}
+
+@keyframes promoGlow {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(255, 140, 0, 0.5),
+                     0 0 20px rgba(255, 140, 0, 0.3),
+                     0 0 30px rgba(255, 140, 0, 0.2);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(255, 140, 0, 0.8),
+                     0 0 30px rgba(255, 140, 0, 0.6),
+                     0 0 40px rgba(255, 140, 0, 0.4);
+    }
+}
+
+@keyframes promoShine {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+@keyframes promoBlink {
+    0%, 49%, 100% {
+        opacity: 1;
+        color: #ff4500;
+    }
+    50%, 99% {
+        opacity: 0.4;
+        color: #ff8c00;
+    }
+}
+
+.promo-pulse {
+    animation: promoPulse 2s ease-in-out infinite;
+}
+
+.promo-glow {
+    animation: promoGlow 2s ease-in-out infinite;
+}
+
+.promo-shine {
+    background: linear-gradient(
+        90deg,
+        currentColor 0%,
+        #ffd700 50%,
+        currentColor 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: promoShine 3s linear infinite;
+}
+
+.promo-blink {
+    animation: promoBlink 1s ease-in-out infinite;
+}
+
+@keyframes promoFloat {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(2deg);
+    }
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(-100vh) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) translateX(50px);
+        opacity: 0;
+    }
+}
+
+@keyframes sparkleFloat {
+    0%, 100% {
+        transform: translateY(0) scale(0.8) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        transform: translateY(-20px) scale(1.2) rotate(180deg);
+        opacity: 1;
+    }
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes stripesMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(40px, 40px); }
+}
+
+@keyframes cardPulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.01); }
+}
+
+@keyframes borderRotate {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+@keyframes radialPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.5; }
+}
+
+@keyframes titleGradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes highlightRotate {
+    0% { filter: hue-rotate(0deg) brightness(1); }
+    50% { filter: hue-rotate(10deg) brightness(1.1); }
+    100% { filter: hue-rotate(0deg) brightness(1); }
 }
 
 /* Responsive */
@@ -478,10 +1110,34 @@
         max-width: 320px;
     }
     
+    .promo-banner {
+        padding: 2.5rem 0;
+    }
+    
     .promo-card {
         flex-direction: column;
         align-items: flex-start;
-        padding: 2.4rem 2rem;
+        padding: 2rem 1.75rem;
+        gap: 1.5rem;
+    }
+    
+    .promo-card::before {
+        padding: 2px;
+    }
+    
+    .promo-title {
+        font-size: 1.85rem;
+    }
+    
+    .promo-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    
+    .promo-highlight {
+        width: 100%;
+        flex: 1 1 auto;
+        padding: 2rem 1.5rem;
     }
 
     .promo-content,
@@ -535,20 +1191,60 @@
         max-width: none;
     }
     
+    .promo-banner {
+        padding: 2rem 0;
+    }
+    
     .promo-card {
-        padding: 2rem 1.5rem;
+        padding: 1.75rem 1.25rem;
+        border-radius: 1.25rem;
+    }
+    
+    .promo-card::before {
+        border-radius: 1.25rem;
+        padding: 2px;
     }
 
     .promo-title {
-        font-size: 1.75rem;
+        font-size: 1.6rem;
+        letter-spacing: -0.3px;
     }
 
     .promo-subtitle {
-        font-size: 1rem;
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
 
     .promo-highlight {
-        padding: 1.75rem 1.5rem;
+        padding: 1.75rem 1.25rem;
+        width: 100%;
+    }
+
+    .promo-mega-text {
+        font-size: 3.2rem !important;
+        letter-spacing: -1.5px;
+    }
+
+    .banner-countdown-num {
+        font-size: 1.1rem;
+    }
+
+    .banner-countdown-txt {
+        font-size: 0.55rem;
+    }
+    
+    .banner-countdown-grid {
+        gap: 0.35rem;
+    }
+    
+    .promo-actions {
+        width: 100%;
+    }
+    
+    .promo-actions .btn {
+        width: 100%;
+        padding: 0.85rem 1.5rem;
+        font-size: 0.95rem;
     }
 
     .section-title {
@@ -570,6 +1266,37 @@
 
     .promo-popup-title {
         font-size: 1.5rem;
+    }
+
+    .popup-highlight-value {
+        font-size: 4rem;
+        letter-spacing: -2px;
+    }
+
+    .popup-highlight-note {
+        font-size: 0.95rem;
+    }
+
+    .countdown-timer {
+        gap: 0.35rem;
+    }
+
+    .countdown-item {
+        min-width: 50px;
+        padding: 0.6rem 0.65rem;
+    }
+
+    .countdown-value {
+        font-size: 1.4rem;
+    }
+
+    .countdown-unit {
+        font-size: 0.65rem;
+    }
+
+    .countdown-separator {
+        font-size: 1.2rem;
+        margin: 0 -0.25rem;
     }
     
     .cta-card {

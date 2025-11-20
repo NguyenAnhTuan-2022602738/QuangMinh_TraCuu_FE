@@ -5,6 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Lookup System</title>
     <link rel="stylesheet" href="%PUBLIC_URL%/main.css">
+    
+    <!-- Script to detect and redirect in-app browsers to default browser -->
+    <script>
+        (function() {
+            // Detect if user is in Zalo, Messenger, or other in-app browsers
+            var ua = navigator.userAgent || navigator.vendor || window.opera;
+            var isZalo = /Zalo/i.test(ua);
+            var isMessenger = /FBAN|FBAV|Instagram/i.test(ua);
+            var isInAppBrowser = /Line|QQ|MicroMessenger|WeChat/i.test(ua) || isZalo || isMessenger;
+            
+            if (isInAppBrowser) {
+                // Show overlay with instructions to open in external browser
+                var currentUrl = window.location.href;
+                
+                // Create overlay
+                var overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+                
+                // Create content container
+                var content = document.createElement('div');
+                content.style.cssText = 'background:white;border-radius:20px;padding:30px 25px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
+                
+                // Detect browser type for specific instructions
+                var browserName = isZalo ? 'Zalo' : isMessenger ? 'Messenger/Facebook' : 'ứng dụng';
+                var iconEmoji = isZalo ? '💬' : isMessenger ? '📘' : '📱';
+                
+                content.innerHTML = 
+                    '<div style="font-size:3.5rem;margin-bottom:15px;">' + iconEmoji + '</div>' +
+                    '<h2 style="color:#ff6b6b;margin:0 0 15px 0;font-size:1.5rem;font-weight:700;">Vui lòng mở bằng trình duyệt</h2>' +
+                    '<p style="color:#666;margin:0 0 20px 0;line-height:1.6;font-size:0.95rem;">Để có trải nghiệm tốt nhất, vui lòng mở website bằng trình duyệt (Chrome, Safari, Edge...)</p>' +
+                    '<div style="background:#f8f9fa;border-radius:10px;padding:15px;margin-bottom:20px;">' +
+                    '<p style="color:#495057;margin:0 0 10px 0;font-weight:600;font-size:0.9rem;">📌 Cách mở:</p>' +
+                    '<ol style="color:#6c757d;margin:0;padding-left:20px;text-align:left;font-size:0.85rem;line-height:1.8;">' +
+                    '<li>Nhấn nút <strong>⋮</strong> (3 chấm) ở góc trên</li>' +
+                    '<li>Chọn <strong>"Mở bằng trình duyệt"</strong> hoặc <strong>"Open in Browser"</strong></li>' +
+                    '</ol>' +
+                    '</div>' +
+                    '<button onclick="window.location.reload();" style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;border:none;padding:12px 30px;border-radius:25px;font-size:0.95rem;font-weight:600;cursor:pointer;width:100%;box-shadow:0 4px 15px rgba(102,126,234,0.4);transition:transform 0.2s;" onmouseover="this.style.transform=\'scale(1.05)\'" onmouseout="this.style.transform=\'scale(1)\'">🔄 Tải lại trang</button>' +
+                    '<p style="color:#999;margin:15px 0 0 0;font-size:0.8rem;">Hoặc copy link và paste vào trình duyệt</p>';
+                
+                overlay.appendChild(content);
+                
+                // Wait for body to be ready
+                if (document.body) {
+                    document.body.appendChild(overlay);
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.body.appendChild(overlay);
+                    });
+                }
+                
+                // Try to open in external browser (works on some platforms)
+                try {
+                    // For iOS Safari View Controller / Android WebView
+                    if (window.webkit && window.webkit.messageHandlers) {
+                        // iOS
+                        setTimeout(function() {
+                            window.location.href = 'googlechrome://' + currentUrl.replace(/^https?:\/\//, '');
+                        }, 100);
+                    } else {
+                        // Android - try to open with intent
+                        setTimeout(function() {
+                            var intent = 'intent://' + currentUrl.replace(/^https?:\/\//, '') + '#Intent;scheme=http;package=com.android.chrome;end';
+                            window.location.href = intent;
+                        }, 100);
+                    }
+                } catch(e) {
+                    // Silent fail - user will see the instructions
+                }
+            }
+        })();
+    </script>
 </head>
 <body>
     <div id="root"></div>
